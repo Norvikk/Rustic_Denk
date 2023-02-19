@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 inquire = "0.5.3"
 anyhow = "1.0.69"
+rand = "0.8.5"

@@ -2,15 +2,33 @@ use inquire::validator::Validation;
 use std::fs::File;
 use std::io::prelude::*;
 
+use super::process_encrypt;
+
 pub fn run() -> anyhow::Result<String> {
-    let mut file: File;
+    let mut bricked_file: File;
+    let mut keys_file: File;
+
     let payload = retrieve_payload()?;
-    let path = retrieve_path("bricked")?;
+    let bricked_path = retrieve_path("bricked")?;
+    let keys_path = retrieve_path("keys")?;
 
-    file = File::create(path.clone())?;
-    file.write(payload.as_bytes())?;
+    let encrypted_payload = process_encrypt::key_encryption::run(&payload);
 
-    Ok("This".to_string())
+    bricked_file = File::create(bricked_path.clone())?;
+    keys_file = File::create(keys_path.clone())?;
+
+    bricked_file.write(encrypted_payload.1.as_bytes())?;
+
+    for object in encrypted_payload.0.iter() {
+
+        keys_file.write(object.symbol.to_string().as_bytes()); 
+        keys_file.write(b" ");
+        keys_file.write(object.key.as_bytes());
+        keys_file.write(b"\n");
+        
+    }
+
+    Ok(encrypted_payload.1)
 }
 
 fn retrieve_payload() -> anyhow::Result<String> {
@@ -33,7 +51,7 @@ fn retrieve_payload() -> anyhow::Result<String> {
 }
 
 fn retrieve_path(name: &str) -> anyhow::Result<String> {
-    let path = inquire::Text::new("Where should the files be written? (leave empty = origin)")
+    let path = inquire::Text::new("Where should the text file be written? (leave empty = origin)")
         .prompt()?
         .trim()
         .to_owned();
