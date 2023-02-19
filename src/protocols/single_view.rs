@@ -1,3 +1,3 @@
-pub fn run() {
-    println!("3");
+pub fn run() -> String {
+    return String::from("This");
 }
