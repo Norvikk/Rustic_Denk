@@ -1,4 +1,5 @@
 use inquire::validator::Validation;
+use core::panic;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -20,12 +21,14 @@ pub fn run() -> anyhow::Result<String> {
     bricked_file.write(encrypted_payload.1.as_bytes())?;
 
     for object in encrypted_payload.0.iter() {
+        let to_write  = format!("{} {} \n", object.symbol.to_string(), object.key);
 
-        keys_file.write(object.symbol.to_string().as_bytes()); 
-        keys_file.write(b" ");
-        keys_file.write(object.key.as_bytes());
-        keys_file.write(b"\n");
-        
+        let handle = keys_file.write(to_write.as_bytes()); 
+       
+        match handle {
+            Ok(_) => println!("Conversion successful"),
+            Err(err) => panic!("ERROR CONVERTING TO FILE: {} ", err)
+        }
     }
 
     Ok(encrypted_payload.1)
