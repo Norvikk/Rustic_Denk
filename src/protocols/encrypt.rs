@@ -1,5 +1,5 @@
-use inquire::validator::Validation;
 use core::panic;
+use inquire::validator::Validation;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -8,26 +8,30 @@ use super::process_encrypt;
 pub fn run() -> anyhow::Result<String> {
     let mut bricked_file: File;
     let mut keys_file: File;
+    println!("0");
 
     let payload = retrieve_payload()?;
+
     let bricked_path = retrieve_path("bricked")?;
+
     let keys_path = retrieve_path("keys")?;
 
     let encrypted_payload = process_encrypt::key_encryption::run(&payload);
 
     bricked_file = File::create(bricked_path.clone())?;
+
     keys_file = File::create(keys_path.clone())?;
 
     bricked_file.write(encrypted_payload.1.as_bytes())?;
 
     for object in encrypted_payload.0.iter() {
-        let to_write  = format!("{} {} \n", object.symbol.to_string(), object.key);
+        let to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
 
-        let handle = keys_file.write(to_write.as_bytes()); 
-       
+        let handle = keys_file.write(to_write.as_bytes());
+
         match handle {
-            Ok(_) => println!("Conversion successful"),
-            Err(err) => panic!("ERROR CONVERTING TO FILE: {} ", err)
+            Ok(_) => (),
+            Err(err) => panic!("ERROR CONVERTING TO FILE: {} ", err),
         }
     }
 
