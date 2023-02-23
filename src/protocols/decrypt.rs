@@ -3,16 +3,12 @@ use std::fs;
 use super::process_encrypt::key_encryption::EncryptionKey;
 
 pub fn run() -> anyhow::Result<String> {
+
     let bricked_path = retrieve_path(
         "bricked",
         "Enter the path where the bricked file is stored. (Empty = origin dir)",
     )?;
-    let keys_path = retrieve_path(
-        "keys",
-        "Enter the path where the keys file is stored. (Empty = origin dir)",
-    )?;
-
-    let bricked;
+let bricked;
     match determine_bricked(&bricked_path) {
         Ok(value) => bricked = value,
         Err(error) => panic!(
@@ -20,13 +16,20 @@ pub fn run() -> anyhow::Result<String> {
             error, bricked_path
         ),
     }
+
+    let keys_path = retrieve_path(
+        "keys",
+        "Enter the path where the keys file is stored. (Empty = origin dir)",
+    )?;
+
+    
     let keys;
 
     match determine_keys(&keys_path) {
         Ok(value) => keys = value,
         Err(error) => panic!(
-            "There is no such file for BRICKED -> {} -> GIVEN PATH -> {}",
-            error, bricked_path
+            "There is no such file for KEYS -> {} -> GIVEN PATH -> {}",
+            error, keys_path
         ),
     }
 
@@ -37,7 +40,7 @@ pub fn run() -> anyhow::Result<String> {
 fn retrieve_path(name: &str, message: &str) -> anyhow::Result<String> {
     let path = inquire::Text::new(message).prompt()?.trim().to_owned();
 
-    let format: &str = ".txt";
+    let format: &str = ".dnk";
 
     if path.is_empty() {
         Ok(name.to_string() + format)

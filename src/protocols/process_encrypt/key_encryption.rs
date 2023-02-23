@@ -1,7 +1,7 @@
 use rand::Rng;
 
 pub fn run(user_text: &str) -> (Vec<EncryptionKey>, String) {
-    let size_key: i64 = 1024;
+    let size_key: i64 = 512;
     let keys = initialize_keys(user_text, size_key);
 
     return (keys.0, keys.1);
@@ -51,6 +51,8 @@ fn initialize_keys(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, Strin
             encryption_keys.push(carrier1);
         }
     }
+
+    bricked_message.push_str("ADCVM235");
 
     return (encryption_keys, bricked_message);
 }
