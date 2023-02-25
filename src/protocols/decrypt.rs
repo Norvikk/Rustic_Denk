@@ -1,112 +1,65 @@
 use std::fs;
 
-use super::process_encrypt::key_encryption::EncryptionKey;
+use super::{process_encrypt::{key_encryption::EncryptionKey, key_buffering::BufferKey}, process_decrypt::{self}};
 
 pub fn run() -> anyhow::Result<String> {
+    let keys_path = get_keys_path();
+    let bricked_path = get_bricked_path();
 
-    let bricked_path = retrieve_path(
-        "bricked",
-        "Enter the path where the bricked file is stored. (Empty = origin dir)",
-    )?;
-let bricked;
-    match determine_bricked(&bricked_path) {
-        Ok(value) => bricked = value,
-        Err(error) => panic!(
-            "There is no such file for BRICKED -> {} -> GIVEN PATH -> {}",
-            error, bricked_path
-        ),
+    let keys_content: String;
+    let bricked_content: String;
+
+    match read_keys_path(&keys_path){
+        Ok(result) => keys_content = result,
+        Err(err) => panic!("Key file path provided <{}> caused this error: {}", keys_path,err)
     }
 
-    let keys_path = retrieve_path(
-        "keys",
-        "Enter the path where the keys file is stored. (Empty = origin dir)",
-    )?;
+    match read_bricked_path(&bricked_path){
+        Ok(result) => bricked_content = result,
+        Err(err) => panic!("Bricked file path provided <{}> caused this error: {}", keys_path,err)
+    }
 
+    let keys_chunks: Vec<&str> = keys_content.split("BUFFER").collect();
+
+    let buffer_chunk = keys_chunks[0].to_string();
+    let vanilla_chunk = keys_chunks[1].to_string();
     
-    let keys;
 
-    match determine_keys(&keys_path) {
-        Ok(value) => keys = value,
-        Err(error) => panic!(
-            "There is no such file for KEYS -> {} -> GIVEN PATH -> {}",
-            error, keys_path
-        ),
-    }
+    let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk)?;
 
-    let decrypted_text = determine_payload(keys, &bricked)?;
-    Ok(decrypted_text)
+    let buffer_keys: Vec<BufferKey> = process_decrypt::debuffer::determine_keys(buffer_chunk)?;
+
+    let debuffered = process_decrypt::debuffer::determine_payload(buffer_keys, &bricked_content)?;
+    let devanilla = process_decrypt::vanilla::determine_payload(vanilla_keys, &debuffered)?;
+
+
+    Ok(devanilla)
 }
 
-fn retrieve_path(name: &str, message: &str) -> anyhow::Result<String> {
-    let path = inquire::Text::new(message).prompt()?.trim().to_owned();
+fn get_keys_path() -> String {
+    let keys_path = inquire::Text::new("Keys:").with_placeholder("/src, C:/Users/Administrator/Downloads").with_default("").with_help_message("Enter the directory where the KEYS file is stored").prompt().unwrap();
 
-    let format: &str = ".dnk";
-
-    if path.is_empty() {
-        Ok(name.to_string() + format)
+    if keys_path.is_empty() {
+        return "keys.dnk".to_string();
     } else {
-        Ok(path + "/" + name + format)
+        return format!("{}/keys.dnk", keys_path).to_string();
     }
 }
 
-fn determine_keys(path_to_keys: &str) -> anyhow::Result<Vec<EncryptionKey>> {
-    let mut keys: Vec<EncryptionKey> = vec![];
+fn get_bricked_path() -> String {
+    let keys_path = inquire::Text::new("Bricked:").with_placeholder("/src, C:/Users/Administrator/Downloads").with_default("").with_help_message("Enter the directory where the BRICKED file is stored").prompt().unwrap();
 
-    let contents = fs::read_to_string(path_to_keys)?;
-    let content_split: Vec<&str> = contents.split("?s§0-a").collect();
-
-    let mut jump = false;
-    let mut jump_value = "";
-    for n in 0..content_split.len() - 1 {
-        if !jump {
-            jump_value = content_split[n];
-            jump = true;
-        } else {
-            keys.push(EncryptionKey {
-                key: content_split[n].to_string(),
-                symbol: jump_value.chars().next().unwrap(),
-            });
-            jump = false;
-        }
+    if keys_path.is_empty() {
+        return "bricked.dnk".to_string();
+    } else {
+        return format!("{}/bricked.dnk", keys_path).to_string();
     }
-    Ok(keys)
 }
 
-fn determine_bricked(path_to_bricked: &str) -> anyhow::Result<String> {
-    Ok(fs::read_to_string(path_to_bricked)?)
+fn read_keys_path(path: &str) -> anyhow::Result<String>{
+    Ok(fs::read_to_string(&path)?)
 }
 
-fn determine_payload(keys: Vec<EncryptionKey>, brick: &str) -> anyhow::Result<String> {
-    let mut payload = String::new();
-    let key_size = keys[0].key.len() as i64;
-    let iterable = split_bricked(key_size, brick);
-
-    for bricked in iterable {
-        for key in keys.iter() {
-            if key.key == bricked {
-                payload.push(key.symbol);
-            }
-        }
-    }
-
-    fn split_bricked(keysize: i64, brick: &str) -> Vec<String> {
-        let mut slices: Vec<String> = vec![];
-
-        let mut looper = 0;
-        let mut result = String::new();
-        for char in brick.chars() {
-            if looper == keysize {
-                slices.push(result);
-                result = char.to_string();
-                looper = 1;
-            } else {
-                looper += 1;
-                result.push(char);
-            }
-        }
-
-        return slices;
-    }
-
-    Ok(payload)
+fn read_bricked_path(path: &str) -> anyhow::Result<String>{
+    Ok(fs::read_to_string(&path)?)
 }

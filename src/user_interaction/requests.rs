@@ -7,7 +7,7 @@ pub fn get_option() -> anyhow::Result<i8> {
         message: "Option: ",
         help_message: Some("Any of the numbers"),
         error_message: "Please type a valid number".into(),
-        default: Some(2),
+        default: Some(0),
         placeholder: Some("0"),
         formatter: &|i| format!("{i}"),
         default_value_formatter: &|i| format!("{i}"),

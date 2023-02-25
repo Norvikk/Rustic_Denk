@@ -52,7 +52,7 @@ fn initialize_keys(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, Strin
         }
     }
 
-    bricked_message.push_str("ADCVM235");
+ bricked_message.push_str("ADCVM235");
 
     return (encryption_keys, bricked_message);
 }
