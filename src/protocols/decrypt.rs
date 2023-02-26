@@ -22,6 +22,7 @@ pub fn run() -> anyhow::Result<String> {
     let keys_chunks: Vec<&str> = keys_content.split("BUFFER").collect();
 
     let buffer_chunk = keys_chunks[0].to_string();
+    
     let vanilla_chunk = keys_chunks[1].to_string();
     
 

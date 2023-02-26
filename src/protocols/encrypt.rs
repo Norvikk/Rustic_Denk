@@ -71,7 +71,13 @@ fn write_file(encrypted_payload: (Vec<BufferKey>, String), keys: Vec<EncryptionK
     bricked_file.write(encrypted_payload.1.as_bytes())?;
 
     for object in encrypted_payload.0.iter() {
-        let to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
+        let to_write:String;
+
+        if object.key !=encrypted_payload.0[encrypted_payload.0.len()-1].key{
+            to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
+        } else {
+            to_write = format!("{}?s§0-a{}", object.symbol.to_string(), object.key);
+        }
 
         keys_file.write(to_write.as_bytes())?;
     }
@@ -80,11 +86,17 @@ fn write_file(encrypted_payload: (Vec<BufferKey>, String), keys: Vec<EncryptionK
     keys_file.write(b"BUFFER")?;
 
     for object in keys.iter(){
-        let to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
+        let to_write: String;
+
+        if object.key != keys[keys.len()-1].key{
+            to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
+        } else {
+            to_write = format!("{}?s§0-a{}", object.symbol.to_string(), object.key);
+        }
 
         keys_file.write(to_write.as_bytes())?;
     }
-    keys_file.write(b"ADCVM235")?;
+    
     
     Ok(())
 }
