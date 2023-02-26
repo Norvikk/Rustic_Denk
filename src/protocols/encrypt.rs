@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 use super::process_encrypt;
+use super::process_encrypt::binding::{bind, BindingKey};
 use super::process_encrypt::key_buffering::BufferKey;
 use super::process_encrypt::key_encryption::EncryptionKey;
 
@@ -21,8 +22,10 @@ pub fn run() -> anyhow::Result<String> {
     }
 
     let buffered_payload = process_encrypt::key_buffering::run(&encrypted_payload);
+    let binded_payload = bind(buffered_payload.1.clone(), buffered_payload.0[0].key.len() as i64);
+    println!("{:?}", binded_payload);
 
-    match write_file(buffered_payload, encrypted_payload.0, bricked_path, keys_path) {
+    match write_file(binded_payload,buffered_payload, encrypted_payload.0, bricked_path, keys_path) {
         Ok(_) => Ok("Successfully converted".to_string()),
         Err(err) => panic!("Critical error {} while encrypting", err)
     }
@@ -37,7 +40,7 @@ fn retrieve_payload() -> anyhow::Result<String> {
         }
     };
 
-    let user_payload = inquire::Text::new("To Encrypt: ")
+    let mut user_payload = inquire::Text::new("To Encrypt: ")
         .with_validator(validator)
         .with_help_message("Write here something you want to encrypt")
         .with_placeholder("123 asd #+_ äöü - anything")
@@ -61,14 +64,14 @@ fn retrieve_path(name: (&str, &str), format: &str) -> anyhow::Result<(String, St
         Ok((path.clone() + "/" + name.0 + format, path + "/" + name.1 + format))
     }
 }
-fn write_file(encrypted_payload: (Vec<BufferKey>, String), keys: Vec<EncryptionKey>, bricked_path: String, keys_path: String) -> anyhow::Result<()>{
+fn write_file(binded_payload: (Vec<BindingKey>, String), encrypted_payload: (Vec<BufferKey>, String), keys: Vec<EncryptionKey>, bricked_path: String, keys_path: String) -> anyhow::Result<()>{
 
     let mut bricked_file: File;
     let mut keys_file: File;
     bricked_file = File::create(bricked_path.clone())?;
     keys_file = File::create(keys_path.clone())?;
 
-    bricked_file.write(encrypted_payload.1.as_bytes())?;
+    bricked_file.write(binded_payload.1.as_bytes())?;
 
     for object in encrypted_payload.0.iter() {
         let to_write:String;
@@ -92,6 +95,20 @@ fn write_file(encrypted_payload: (Vec<BufferKey>, String), keys: Vec<EncryptionK
             to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
         } else {
             to_write = format!("{}?s§0-a{}", object.symbol.to_string(), object.key);
+        }
+
+        keys_file.write(to_write.as_bytes())?;
+    }
+    let carrier = format!("?s§0-aBINDING");
+    keys_file.write(carrier.as_bytes())?;
+
+    for object in binded_payload.0.iter(){
+        let to_write: String;
+
+        if object.key != binded_payload.0[binded_payload.0.len()-1].key{
+            to_write = format!("{}?s§0-a{}?s§0-a{}?s§0-a", object.symbol.0.to_string(),object.symbol.1.to_string(), object.key);
+        } else {
+            to_write = format!("{}?s§0-a{}?s§0-a{}",object.symbol.0.to_string(),object.symbol.1.to_string(), object.key);
         }
 
         keys_file.write(to_write.as_bytes())?;
