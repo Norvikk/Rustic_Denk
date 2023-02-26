@@ -21,7 +21,8 @@ fn random_mixed_string(length: i64) -> String {
     for _ in 0..length {
         result.push(mixed[rng.gen_range(0..mixed.len())])
     }
-
+ 
+ 
     result
 }
 
