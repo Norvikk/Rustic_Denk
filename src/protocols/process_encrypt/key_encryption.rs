@@ -1,7 +1,7 @@
 use rand::Rng;
 
 pub fn run(user_text: &str) -> (Vec<EncryptionKey>, String) {
-    let size_key: i64 = 4;
+    let size_key: i64 = 12;
     let keys = initialize_keys(user_text, size_key);
 
     return (keys.0, keys.1);

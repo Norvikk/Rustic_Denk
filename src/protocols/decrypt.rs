@@ -8,7 +8,7 @@ pub fn run() -> anyhow::Result<String> {
     let bricked_path = get_bricked_path();
 
     let keys_content: String;
-    let bricked_content: String;
+    let mut bricked_content: String;
 
     match read_keys_path(&keys_path){
         Ok(result) => keys_content = result,
@@ -33,7 +33,7 @@ pub fn run() -> anyhow::Result<String> {
 
     
 
-    
+    bricked_content = process_decrypt::recentralize::revert_ascii_by_10(&bricked_content);
 
     let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk)?;
     

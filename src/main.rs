@@ -11,10 +11,14 @@ fn main() -> anyhow::Result<()> {
     let option = user_interaction::requests::get_option()?;
 
     // Attempts to forward the process to whatever protocol the user chose
+    
+
     match  forward_process(option){
         Ok(value) => println!("Succeeded! -> {}", value),
         Err(err) => panic!("A fatal error caused instability -> {}", err)
     }
+
+   
     
     
 
