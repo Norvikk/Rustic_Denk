@@ -9,7 +9,7 @@ pub fn run(encrypted_payload: &(Vec<EncryptionKey>, String)) -> (Vec<BufferKey>,
        buffer_payload.0.push(BufferKey { key: random_mixed_string(length_key), symbol: indexed.key.clone() })
     }
 
-    let iterable = split_bricked(encrypted_payload.0[0].key.chars().count() as i64, &encrypted_payload.1);
+    let iterable = split_string( &encrypted_payload.1, encrypted_payload.0[0].key.chars().count() as i64);
     let mut buffer_result = String::new();
 
     for index in iterable {
@@ -20,11 +20,11 @@ pub fn run(encrypted_payload: &(Vec<EncryptionKey>, String)) -> (Vec<BufferKey>,
         }
     }
 
-    buffer_result.push_str("ADCVM235");
+    
     buffer_payload.1 = buffer_result.clone();
     
     
-    let temporal_decrypt_keys_size = split_bricked(buffer_payload.0[0].key.chars().count() as i64, &buffer_payload.1);
+    let temporal_decrypt_keys_size = split_string( &buffer_payload.1,buffer_payload.0[0].key.chars().count() as i64);
     let mut temporal_debuffered_entry: Vec<String> = vec![];
 
     for split_index in temporal_decrypt_keys_size{
@@ -46,23 +46,22 @@ pub fn run(encrypted_payload: &(Vec<EncryptionKey>, String)) -> (Vec<BufferKey>,
     }
 
 
-    fn split_bricked(keysize: i64, brick: &str) -> Vec<String> {
-        let mut slices: Vec<String> = vec![];
-
-        let mut looper = 0;
-        let mut result = String::new();
-        for char in brick.chars() {
-            if looper == keysize {
-                slices.push(result);
-                result = char.to_string();
-                looper = 1;
-            } else {
-                looper += 1;
-                result.push(char);
-            }
+    fn split_string(s: &str, chunk_size: i64) -> Vec<String> {
+        let mut result = vec![];
+        let mut start = 0;
+        let mut end = chunk_size as usize;
+        
+        while start < s.len()  {
+            
+            let chunk = s[start..end].to_string();
+            result.push(chunk);
+            start = end;
+            end += chunk_size as usize;
         }
 
-        return slices;
+        
+        
+        result
     }
 
     println!("{}", vanilla_result);

@@ -1,5 +1,6 @@
 use std::fs;
 
+
 use super::{process_encrypt::{key_encryption::EncryptionKey, key_buffering::BufferKey}, process_decrypt::{self}};
 
 pub fn run() -> anyhow::Result<String> {
@@ -22,14 +23,26 @@ pub fn run() -> anyhow::Result<String> {
     let keys_chunks: Vec<&str> = keys_content.split("BUFFER").collect();
 
     let buffer_chunk = keys_chunks[0].to_string();
+    
     let vanilla_chunk = keys_chunks[1].to_string();
+
+
+    let carrier: Vec<&str> = vanilla_chunk.split("BINDING").collect();
+    let binding_chunk = carrier[1].to_string();
+
+
+    
+
     
 
     let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk)?;
-
+    
     let buffer_keys: Vec<BufferKey> = process_decrypt::debuffer::determine_keys(buffer_chunk)?;
+    
 
-    let debuffered = process_decrypt::debuffer::determine_payload(buffer_keys, &bricked_content)?;
+    let buffer_package = process_decrypt::unbind::unbind( &binding_chunk, &bricked_content);
+
+    let debuffered = process_decrypt::debuffer::determine_payload(buffer_keys, &buffer_package)?;
     let devanilla = process_decrypt::vanilla::determine_payload(vanilla_keys, &debuffered)?;
 
 
