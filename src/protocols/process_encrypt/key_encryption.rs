@@ -1,7 +1,7 @@
 use rand::Rng;
 
 pub fn run(user_text: &str) -> (Vec<EncryptionKey>, String) {
-    let size_key: i64 = 12;
+    let size_key: i64 = 128;
     let keys = initialize_keys(user_text, size_key);
 
     return (keys.0, keys.1);
@@ -21,8 +21,7 @@ fn random_mixed_string(length: i64) -> String {
     for _ in 0..length {
         result.push(mixed[rng.gen_range(0..mixed.len())])
     }
- 
- 
+
     result
 }
 
@@ -52,7 +51,6 @@ fn initialize_keys(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, Strin
             encryption_keys.push(carrier1);
         }
     }
-
 
     return (encryption_keys, bricked_message);
 }
