@@ -52,5 +52,6 @@ fn initialize_keys(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, Strin
         }
     }
 
+
     return (encryption_keys, bricked_message);
 }
