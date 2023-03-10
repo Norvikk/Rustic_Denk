@@ -13,9 +13,6 @@ pub fn unique_key(length: i64) -> String {
         }
 
         if LIST.contains(&result) {
-            println!("DUPLICATE DETECTED");
-
-           
             for i in 0..retry_tolerance {
                 result = String::new();
                 for _ in 0..length {
@@ -27,12 +24,10 @@ pub fn unique_key(length: i64) -> String {
                     break;
                 }
 
-                if i == retry_tolerance{
+                if i == retry_tolerance {
                     panic!("No more possible keys for this keysize. Increase the keysize or decrease the unique characters.")
                 }
             }
-            
-            
         } else {
             LIST.push(result.clone())
         }
