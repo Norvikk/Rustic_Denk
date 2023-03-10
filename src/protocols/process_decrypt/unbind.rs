@@ -2,7 +2,8 @@ use crate::protocols::process_encrypt::binding::BindingKey;
 
 pub fn unbind(read_bricked: &str, bricked_content: &str) -> String {
     let mut result = String::new();
-    let split_keys = read_bricked.split("?s§0-a");
+    let synapse = "#4m";
+    let split_keys = read_bricked.split(synapse);
 
     let mut binding_keys: Vec<BindingKey> = vec![];
 

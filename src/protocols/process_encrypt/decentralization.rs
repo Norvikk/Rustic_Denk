@@ -1,10 +1,13 @@
-pub fn decentralize(input: String) -> String {
-    let mut result = String::new();
-    for c in input.chars() {
-        let ascii_val = c as u8;
-        let new_ascii_val = ascii_val.wrapping_add(25);
-        let new_char = new_ascii_val as char;
-        result.push(new_char);
-    }
-    result
+pub fn decentralize(text: &str, shift: u8) -> String {
+    text.chars()
+        .map(|c| {
+            if c.is_ascii_alphabetic() {
+                let base = if c.is_ascii_lowercase() { b'a' } else { b'A' };
+                let offset = (c as u8 - base + shift) % 26;
+                (base + offset) as char
+            } else {
+                c
+            }
+        })
+        .collect()
 }
