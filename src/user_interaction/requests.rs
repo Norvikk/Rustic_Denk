@@ -1,8 +1,6 @@
 use inquire::{ui::RenderConfig, *};
 
 pub fn get_option() -> anyhow::Result<i8> {
-
-    
     let key: CustomType<u8> = CustomType {
         message: "Option: ",
         help_message: Some("Any of the numbers"),
@@ -19,9 +17,6 @@ pub fn get_option() -> anyhow::Result<i8> {
         validators: vec![],
     };
 
-    
     let key = key.prompt()? as i8;
     Ok(key)
 }
-
-
