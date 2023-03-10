@@ -11,21 +11,20 @@ use super::process_encrypt::key_encryption::EncryptionKey;
 pub fn run() -> anyhow::Result<String> {
     
     let payload = retrieve_payload()?;
-    
     let encrypted_payload = process_encrypt::key_encryption::run(&payload);
     let bricked_path;
-    let keys_path ;
+    let keys_path;
 
 
-match retrieve_path(("bricked", "keys"), ".dnk") {
+    match retrieve_path(("bricked", "keys"), ".dnk") {
         Ok(value) => {bricked_path = value.0; keys_path = value.1},
         Err(err) => panic!("{err}") 
     }
 
     let buffered_payload = process_encrypt::key_buffering::run(&encrypted_payload);
-    let mut binded_payload = bind(buffered_payload.1.clone(), buffered_payload.0[0].key.len() as i64);
-    
-    binded_payload.1 = process_encrypt::decentralization::increase_ascii_by_10(binded_payload.1);
+    let binded_payload = bind(buffered_payload.1.clone(), buffered_payload.0[0].key.len() as i64);
+    println!("{:?}", binded_payload);
+
     match write_file(binded_payload,buffered_payload, encrypted_payload.0, bricked_path, keys_path) {
         Ok(_) => Ok("Successfully converted".to_string()),
         Err(err) => panic!("Critical error {} while encrypting", err)
@@ -41,7 +40,7 @@ fn retrieve_payload() -> anyhow::Result<String> {
         }
     };
 
-    let user_payload = inquire::Text::new("To Encrypt: ")
+    let mut user_payload = inquire::Text::new("To Encrypt: ")
         .with_validator(validator)
         .with_help_message("Write here something you want to encrypt")
         .with_placeholder("123 asd #+_ äöü - anything")
@@ -56,7 +55,7 @@ fn retrieve_path(name: (&str, &str), format: &str) -> anyhow::Result<(String, St
         .prompt()?
         .trim()
         .to_owned();
-  
+
     
 
     if path.is_empty() {
@@ -65,7 +64,7 @@ fn retrieve_path(name: (&str, &str), format: &str) -> anyhow::Result<(String, St
         Ok((path.clone() + "/" + name.0 + format, path + "/" + name.1 + format))
     }
 }
-fn write_file(binded_payload:(Vec<BindingKey>, String), encrypted_payload: (Vec<BufferKey>, String), keys: Vec<EncryptionKey>, bricked_path: String, keys_path: String) -> anyhow::Result<()>{
+fn write_file(binded_payload: (Vec<BindingKey>, String), encrypted_payload: (Vec<BufferKey>, String), keys: Vec<EncryptionKey>, bricked_path: String, keys_path: String) -> anyhow::Result<()>{
 
     let mut bricked_file: File;
     let mut keys_file: File;

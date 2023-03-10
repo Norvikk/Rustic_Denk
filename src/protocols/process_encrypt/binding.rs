@@ -53,14 +53,3 @@ pub struct BindingKey {
     pub key: String,
 }
 
-fn random_mixed_string(length: i64) -> String {
-    let mixed: Vec<char> = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNO0123456789PQRSTUVWXYZ!#$%&()*+,-./:;<=>?@[]^_`{|}".chars().collect();
-    let mut rng = rand::thread_rng();
-
-    let mut result = String::new();
-    for _ in 0..length {
-        result.push(mixed[rng.gen_range(0..mixed.len())])
-    }
-
-    result
-}
