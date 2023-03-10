@@ -1,7 +1,8 @@
-use rand::Rng;
+use crate::protocols::tooling::key_generation::unique_key;
+
 
 pub fn run(user_text: &str) -> (Vec<EncryptionKey>, String) {
-    let size_key: i64 = 4;
+    let size_key: i64 = 2;
     let keys = initialize_keys(user_text, size_key);
 
     return (keys.0, keys.1);
@@ -13,18 +14,7 @@ pub struct EncryptionKey {
     pub key: String,
 }
 
-fn random_mixed_string(length: i64) -> String {
-    let mixed: Vec<char> = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNO0123456789PQRSTUVWXYZ!#$%&()*+,-./:;<=>?@[]^_`{|}".chars().collect();
-    let mut rng = rand::thread_rng();
 
-    let mut result = String::new();
-    for _ in 0..length {
-        result.push(mixed[rng.gen_range(0..mixed.len())])
-    }
- 
- 
-    result
-}
 
 fn initialize_keys(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, String) {
     let mut encryption_keys: Vec<EncryptionKey> = vec![];
@@ -43,7 +33,7 @@ fn initialize_keys(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, Strin
 
         if !is_contained {
             let carrier1 = EncryptionKey {
-                key: random_mixed_string(size_key),
+                key: unique_key(size_key),
                 symbol: letter,
             };
 

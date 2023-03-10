@@ -26,7 +26,7 @@ pub fn determine_keys(chunk: String) -> anyhow::Result<Vec<EncryptionKey>> {
 pub fn determine_payload(keys: Vec<EncryptionKey>, brick: &str) -> anyhow::Result<String> {
     let mut payload = String::new();
     let key_size = keys[0].key.len() as i64;
-    let iterable = split_string(brick,key_size);
+    let iterable = split_string(brick, key_size);
 
     //println!("{:?}",(iterable.clone(), brick, key_size));
 
@@ -42,17 +42,14 @@ pub fn determine_payload(keys: Vec<EncryptionKey>, brick: &str) -> anyhow::Resul
         let mut result = vec![];
         let mut start = 0;
         let mut end = chunk_size as usize;
-        
-        while start < s.len()  {
-            
+
+        while start < s.len() {
             let chunk = s[start..end].to_string();
             result.push(chunk);
             start = end;
             end += chunk_size as usize;
         }
 
-        
-        
         result
     }
 

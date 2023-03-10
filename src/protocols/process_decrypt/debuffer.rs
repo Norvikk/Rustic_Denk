@@ -7,12 +7,9 @@ pub fn determine_keys(chunk: String) -> anyhow::Result<Vec<BufferKey>> {
 
     let split_chunk: Vec<&str> = chunk.split("?s§0-a").collect();
 
-    
-    
-
     let mut jump = false;
     let mut jump_value = "";
-    for n in 0..split_chunk.len(){
+    for n in 0..split_chunk.len() {
         if !jump {
             jump_value = split_chunk[n];
             jump = true;
@@ -25,15 +22,13 @@ pub fn determine_keys(chunk: String) -> anyhow::Result<Vec<BufferKey>> {
         }
     }
 
-    
     Ok(keys)
 }
-
 
 pub fn determine_payload(keys: Vec<BufferKey>, brick: &str) -> anyhow::Result<String> {
     let mut payload = String::new();
     let key_size = keys[0].key.len() as i64;
-    let iterable = split_string(brick,key_size);
+    let iterable = split_string(brick, key_size);
 
     for bricked in iterable {
         for key in keys.iter() {
@@ -47,17 +42,16 @@ pub fn determine_payload(keys: Vec<BufferKey>, brick: &str) -> anyhow::Result<St
         let mut result = vec![];
         let mut start = 0;
         let mut end = chunk_size as usize;
-        
+
         while start < s.len() {
             let chunk = s[start..end].to_string();
             result.push(chunk);
             start = end;
             end += chunk_size as usize;
         }
-        
+
         result
     }
-
 
     Ok(payload)
 }

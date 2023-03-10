@@ -36,7 +36,7 @@ pub fn unbind(read_bricked: &str, bricked_content: &str) -> String {
         bricked_content,
         binding_keys[0].symbol.0.len() as i64,
     ));
-   
+
     for index in split_read_bricked.iter() {
         for key in binding_keys.iter() {
             if index == &key.key {
@@ -46,7 +46,6 @@ pub fn unbind(read_bricked: &str, bricked_content: &str) -> String {
         }
     }
 
-  
     result
 }
 
