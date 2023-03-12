@@ -1,19 +1,19 @@
+use rand::{Rng, SeedableRng};
+use rand::rngs::StdRng;
 
-use rand::Rng;
-use rand::SeedableRng;
-pub fn recentralize(text: &str, shift: u8) -> String {
-    let seed: u32 = 34591;
-    let mut rng = rand::rngs::StdRng::seed_from_u64(seed as u64);
+pub fn recentralize(input: &str) -> String {
+    let seed: u64 = 54628;
+    let mut rng = StdRng::seed_from_u64(seed);
 
-    text.chars()
-        .map(|c| {
-            
-                let base = rng.gen_range(0..10);
-                let offset = (c as u8 + base - shift) % 26;
-                (base + offset) as char
-            
-        })
-        .collect()
+    let mut output = String::new();
 
+    for c in input.chars() {
+        let mut new_char = c as u8;
+        let shift = rng.gen_range(1..10) as u8;
+        new_char = new_char.wrapping_sub(shift);
+        output.push(new_char as char);
+    }
     
+
+    output
 }
