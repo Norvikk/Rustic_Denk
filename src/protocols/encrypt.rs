@@ -8,6 +8,7 @@ use super::process_encrypt::binding::{bind, BindingKey};
 use super::process_encrypt::key_buffering::BufferKey;
 use super::process_encrypt::key_encryption::EncryptionKey;
 
+
 pub fn run() -> anyhow::Result<String> {
     let payload = retrieve_payload()?;
 
