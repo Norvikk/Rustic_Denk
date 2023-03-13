@@ -1,13 +1,18 @@
-pub fn decentralize(text: &str, shift: u8) -> String {
-    text.chars()
-        .map(|c| {
-            if c.is_ascii_alphabetic() {
-                let base = if c.is_ascii_lowercase() { b'a' } else { b'A' };
-                let offset = (c as u8 - base + shift) % 26;
-                (base + offset) as char
-            } else {
-                c
-            }
-        })
-        .collect()
+use rand::{Rng, SeedableRng};
+use rand::rngs::StdRng;
+
+pub fn decentralize(input: String) -> String {
+    let seed: u64 = 54628;
+    let mut rng = StdRng::seed_from_u64(seed);
+
+    let mut output = String::new();
+
+    for c in input.chars() {
+        let mut new_char = c as u8;
+        let shift = rng.gen_range(1..10) as u8;
+        new_char = new_char.wrapping_add(shift);
+        output.push(new_char as char);
+    }
+
+    output
 }

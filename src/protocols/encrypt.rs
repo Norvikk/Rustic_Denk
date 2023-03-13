@@ -8,6 +8,7 @@ use super::process_encrypt::binding::{bind, BindingKey};
 use super::process_encrypt::key_buffering::BufferKey;
 use super::process_encrypt::key_encryption::EncryptionKey;
 
+
 pub fn run() -> anyhow::Result<String> {
     let payload = retrieve_payload()?;
 
@@ -23,10 +24,10 @@ pub fn run() -> anyhow::Result<String> {
         Err(err) => panic!("{err}"),
     }
 
-    let buffered_payload = process_encrypt::key_buffering ::run(&encrypted_payload);
+    let buffered_payload = process_encrypt::key_buffering::run(&encrypted_payload);
     let mut binded_payload = bind(&buffered_payload.1, buffered_payload.0[0].key.len() as i64);
 
-    binded_payload.1 = process_encrypt::decentralization::decentralize(&binded_payload.1, 12);
+    binded_payload.1 = process_encrypt::decentralization::decentralize(binded_payload.1);
     match write_file(
         binded_payload,
         buffered_payload,
@@ -48,7 +49,7 @@ fn retrieve_payload() -> anyhow::Result<String> {
         }
     };
 
-    let user_payload = inquire::Text::new("To Encrypt: ")
+    let mut user_payload = inquire::Text::new("To Encrypt: ")
         .with_validator(validator)
         .with_help_message("Write here something you want to encrypt")
         .with_placeholder("123 asd #+_ äöü - anything")
@@ -85,7 +86,6 @@ fn write_file(
     let mut bricked_file: File = File::create(&bricked_path)?;
     let mut keys_file: File = File::create(&keys_path)?;
     let mut to_write_keys: String = String::new();
-    let synapse = "#4m";
 
     bricked_file.write(binded_payload.1.as_bytes())?;
 
@@ -96,9 +96,9 @@ fn write_file(
         let to_write: String;
 
         if object.key != last_object_0 {
-            to_write = format!("{1}{0}{2}{0}", synapse,  object.symbol.to_string(), object.key);
+            to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
         } else {
-            to_write = format!("{1}{0}{2}", synapse, object.symbol.to_string(), object.key);
+            to_write = format!("{}?s§0-a{}", object.symbol.to_string(), object.key);
         }
 
         to_write_keys.push_str(&to_write);
@@ -107,7 +107,7 @@ fn write_file(
     to_write_keys.push_str("BUFFER");
 
     for object in keys.iter() {
-        let to_write = format!("{1}{0}{2}{0}", synapse, object.symbol.to_string(), object.key);
+        let to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
 
         to_write_keys.push_str(&to_write);
     }
@@ -120,16 +120,14 @@ fn write_file(
 
         if object.key != last_object_1 {
             to_write = format!(
-                "{1}{0}{2}{0}{3}{0}",
-                synapse,
+                "{}?s§0-a{}?s§0-a{}?s§0-a",
                 object.symbol.0.to_string(),
                 object.symbol.1.to_string(),
                 object.key
             );
         } else {
             to_write = format!(
-                "{1}{0}{2}{0}{3}",
-                synapse,
+                "{}?s§0-a{}?s§0-a{}",
                 object.symbol.0.to_string(),
                 object.symbol.1.to_string(),
                 object.key
@@ -139,7 +137,7 @@ fn write_file(
         to_write_keys.push_str(&to_write);
     }
 
-    to_write_keys = process_encrypt::decentralization::decentralize(&to_write_keys, 12);
+    to_write_keys = process_encrypt::decentralization::decentralize(to_write_keys);
     keys_file.write(to_write_keys.as_bytes())?;
 
     Ok(())
