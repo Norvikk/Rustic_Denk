@@ -2,7 +2,12 @@ pub mod protocols;
 pub mod user_interaction;
 
 
+
+
 fn main() -> anyhow::Result<()> {
+
+    
+
     user_interaction::display::options();
     let option = user_interaction::requests::get_option()?;
 
