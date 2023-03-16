@@ -49,7 +49,7 @@ fn retrieve_payload() -> anyhow::Result<String> {
         }
     };
 
-    let mut user_payload = inquire::Text::new("To Encrypt: ")
+    let user_payload = inquire::Text::new("To Encrypt: ")
         .with_validator(validator)
         .with_help_message("Write here something you want to encrypt")
         .with_placeholder("123 asd #+_ äöü - anything")
