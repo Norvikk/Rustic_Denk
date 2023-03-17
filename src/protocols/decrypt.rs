@@ -5,7 +5,9 @@ use super::{
     process_encrypt::{key_buffering::BufferKey, key_encryption::EncryptionKey},
 };
 
-pub fn run() -> anyhow::Result<String> {
+
+pub fn run() -> anyhow::Result<()> {
+
     let keys_path = get_keys_path();
     let bricked_path = get_bricked_path();
 
@@ -27,6 +29,7 @@ pub fn run() -> anyhow::Result<String> {
             keys_path, err
         ),
     }
+    let synapse_design = "?s4";
     let decentralized_chunks = process_decrypt::recentralize::recentralize(&keys_content);
     let keys_chunks: Vec<&str> = decentralized_chunks.split("BUFFER").collect();
 
@@ -39,17 +42,20 @@ pub fn run() -> anyhow::Result<String> {
 
     bricked_content = process_decrypt::recentralize::recentralize(&bricked_content);
 
-    let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk)?;
+    let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk, synapse_design)?;
     
-    let buffer_keys: Vec<BufferKey> = process_decrypt::debuffer::determine_keys(buffer_chunk)?;
+    let buffer_keys: Vec<BufferKey> = process_decrypt::debuffer::determine_keys(buffer_chunk, synapse_design)?;
     
 
-    let buffer_package = process_decrypt::unbind::unbind(&binding_chunk, &bricked_content);
+    let buffer_package = process_decrypt::unbind::unbind(&binding_chunk, &bricked_content, synapse_design);
 
     let debuffered = process_decrypt::debuffer::determine_payload(buffer_keys, &buffer_package)?;
     let devanilla = process_decrypt::vanilla::determine_payload(vanilla_keys, &debuffered)?;
+    
+    println!("{:?}", (debuffered, &devanilla));
 
-    Ok(devanilla)
+    println!("Decrypted value: {}",devanilla);
+    Ok(())
 }
 
 fn get_keys_path() -> String {

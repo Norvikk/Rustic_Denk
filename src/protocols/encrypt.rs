@@ -1,4 +1,3 @@
-use core::panic;
 use inquire::validator::Validation;
 use std::fs::File;
 use std::io::prelude::*;
@@ -8,48 +7,47 @@ use super::process_encrypt::binding::{bind, BindingKey};
 use super::process_encrypt::key_buffering::BufferKey;
 use super::process_encrypt::key_encryption::EncryptionKey;
 
+use rustic_denk_algo::synapse_host;
 
-pub fn run() -> anyhow::Result<String> {
-    let payload = retrieve_payload()?;
+pub fn run() -> anyhow::Result<()> {
+    let synapse_design = "?s4";
+    let payload: String = retrieve_payload()?;
+    let encrypted_bundle: (Vec<EncryptionKey>, String) =
+        process_encrypt::key_encryption::run(&payload);
 
-    let encrypted_payload = process_encrypt::key_encryption::run(&payload);
-    let bricked_path;
-    let keys_path;
+    let (bricked_path, keys_path): (String, String) = retrieve_path(("bricked", "keys"), ".dnk")?;
+    let buffered_bundle: (Vec<BufferKey>, String) =
+        process_encrypt::key_buffering::run(&encrypted_bundle);
 
-    match retrieve_path(("bricked", "keys"), ".dnk") {
-        Ok(value) => {
-            bricked_path = value.0;
-            keys_path = value.1
-        }
-        Err(err) => panic!("{err}"),
-    }
+    let mut binded_bundle: (Vec<BindingKey>, String) =
+        bind(&buffered_bundle.1, buffered_bundle.0[0].key.len() as i64);
 
-    let buffered_payload = process_encrypt::key_buffering::run(&encrypted_payload);
-    let mut binded_payload = bind(&buffered_payload.1, buffered_payload.0[0].key.len() as i64);
+    binded_bundle.1 = process_encrypt::decentralization::decentralize(binded_bundle.1);
 
-    binded_payload.1 = process_encrypt::decentralization::decentralize(binded_payload.1);
-    match write_file(
-        binded_payload,
-        buffered_payload,
-        encrypted_payload.0,
+    write_file(
+        binded_bundle,
+        buffered_bundle,
+        encrypted_bundle.0,
         bricked_path,
         keys_path,
-    ) {
-        Ok(_) => Ok(String::from("Success converting.")),
-        Err(err) => panic!("Critical error {} while encrypting", err),
-    }
+        synapse_design
+    )?;
+
+    Ok(())
 }
 
 fn retrieve_payload() -> anyhow::Result<String> {
     let validator = |input: &str| {
         if input.chars().count() < 2 {
-            Ok(Validation::Invalid("You must encrypt AT LEAST 2 characters.".into()))
+            Ok(Validation::Invalid(
+                "You must encrypt AT LEAST 2 characters.".into(),
+            ))
         } else {
             Ok(Validation::Valid)
         }
     };
 
-    let mut user_payload = inquire::Text::new("To Encrypt: ")
+    let user_payload = inquire::Text::new("To Encrypt: ")
         .with_validator(validator)
         .with_help_message("Write here something you want to encrypt")
         .with_placeholder("123 asd #+_ äöü - anything")
@@ -77,63 +75,65 @@ fn retrieve_path(name: (&str, &str), format: &str) -> anyhow::Result<(String, St
     }
 }
 fn write_file(
-    binded_payload: (Vec<BindingKey>, String),
-    encrypted_payload: (Vec<BufferKey>, String),
-    keys: Vec<EncryptionKey>,
+    binded_bundle: (Vec<BindingKey>, String),
+    buffer_bundle: (Vec<BufferKey>, String),
+    encryption_keys: Vec<EncryptionKey>,
     bricked_path: String,
-    keys_path: String,
+    keys_path: String,  
+    synapse_design: &str
 ) -> anyhow::Result<()> {
     let mut bricked_file: File = File::create(&bricked_path)?;
     let mut keys_file: File = File::create(&keys_path)?;
     let mut to_write_keys: String = String::new();
 
-    bricked_file.write(binded_payload.1.as_bytes())?;
+    bricked_file.write(binded_bundle.1.as_bytes())?;
 
-    let last_object_0 = encrypted_payload.0[encrypted_payload.0.len() - 1]
-        .key
-        .clone();
-    for object in encrypted_payload.0.iter() {
+    let last_object_0 = buffer_bundle.0[buffer_bundle.0.len() - 1].key.clone();
+    for object in buffer_bundle.0.iter() {
         let to_write: String;
-
+    
         if object.key != last_object_0 {
-            to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
+            to_write = format!("{}{}{}", object.symbol.to_string(), synapse_design, object.key);
         } else {
-            to_write = format!("{}?s§0-a{}", object.symbol.to_string(), object.key);
+            to_write = format!("{}{}{}", object.symbol.to_string(), synapse_design, object.key);
         }
-
+    
         to_write_keys.push_str(&to_write);
     }
 
     to_write_keys.push_str("BUFFER");
 
-    for object in keys.iter() {
-        let to_write = format!("{}?s§0-a{}?s§0-a", object.symbol.to_string(), object.key);
-
+    for object in encryption_keys.iter() {
+        let to_write = format!("{}{}{}", object.symbol.to_string(), synapse_design, object.key);
+    
         to_write_keys.push_str(&to_write);
     }
 
     to_write_keys.push_str("BINDING");
 
-    let last_object_1 = binded_payload.0[binded_payload.0.len() - 1].key.clone();
-    for object in binded_payload.0.iter() {
+    let last_object_1 = binded_bundle.0[binded_bundle.0.len() - 1].key.clone();
+    for object in binded_bundle.0.iter() {
         let to_write: String;
-
+    
         if object.key != last_object_1 {
             to_write = format!(
-                "{}?s§0-a{}?s§0-a{}?s§0-a",
+                "{}{}{}{}{}",
                 object.symbol.0.to_string(),
+                synapse_design,
                 object.symbol.1.to_string(),
+                synapse_design,
                 object.key
             );
         } else {
             to_write = format!(
-                "{}?s§0-a{}?s§0-a{}",
+                "{}{}{}{}",
                 object.symbol.0.to_string(),
+                synapse_design,
                 object.symbol.1.to_string(),
                 object.key
             );
         }
-
+    
         to_write_keys.push_str(&to_write);
     }
 

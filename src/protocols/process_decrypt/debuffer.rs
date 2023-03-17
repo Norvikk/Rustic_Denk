@@ -2,10 +2,11 @@ use anyhow::Ok;
 
 use crate::protocols::process_encrypt::key_buffering::BufferKey;
 
-pub fn determine_keys(chunk: String) -> anyhow::Result<Vec<BufferKey>> {
+pub fn determine_keys(chunk: String, synapse: &str) -> anyhow::Result<Vec<BufferKey>> {
     let mut keys: Vec<BufferKey> = vec![];
 
-    let split_chunk: Vec<&str> = chunk.split("?s§0-a").collect();
+    let split_chunk: Vec<&str> = chunk.split(synapse).collect();
+    
 
     let mut jump = false;
     let mut jump_value = "";

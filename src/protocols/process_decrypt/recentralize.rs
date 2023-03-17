@@ -2,7 +2,7 @@ use rand::{Rng, SeedableRng};
 use rand::rngs::StdRng;
 
 pub fn recentralize(input: &str) -> String {
-    let seed: u64 = 54628;
+    let seed: u64 = 546282;
     let mut rng = StdRng::seed_from_u64(seed);
 
     let mut output = String::new();
@@ -14,6 +14,5 @@ pub fn recentralize(input: &str) -> String {
         output.push(new_char as char);
     }
     
-
     output
 }

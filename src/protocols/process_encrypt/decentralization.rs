@@ -2,7 +2,7 @@ use rand::{Rng, SeedableRng};
 use rand::rngs::StdRng;
 
 pub fn decentralize(input: String) -> String {
-    let seed: u64 = 54628;
+    let seed: u64 = 546282;
     let mut rng = StdRng::seed_from_u64(seed);
 
     let mut output = String::new();
