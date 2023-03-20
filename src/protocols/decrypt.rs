@@ -27,7 +27,7 @@ pub fn run() -> anyhow::Result<String> {
             keys_path, err
         ),
     }
-    let decentralized_chunks = process_decrypt::recentralize::recentralize(&keys_content);
+    let decentralized_chunks = &keys_content;
     let keys_chunks: Vec<&str> = decentralized_chunks.split("BUFFER").collect();
 
     let buffer_chunk = keys_chunks[0].to_string();
@@ -37,7 +37,7 @@ pub fn run() -> anyhow::Result<String> {
     let carrier: Vec<&str> = vanilla_chunk.split("BINDING").collect();
     let binding_chunk = carrier[1].to_string();
 
-    bricked_content = process_decrypt::recentralize::recentralize(&bricked_content);
+    bricked_content = bricked_content.clone();
 
     let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk)?;
     

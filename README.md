@@ -2,7 +2,10 @@
 
 Rustic_Denk encrypts and decrypts text using a key. When text is encrypted, it outputs keys.dnk and bricked.dnk files that are obfuscated. The program was initially written in C#, then rewritten in C++ for added features but was unstable. This final version was rewritten in Rust and is stable with all the features.
 
+# Table Of Contents
+
 - [Rustic\_Denk](#rustic_denk)
+- [Table Of Contents](#table-of-contents)
   - [Features](#features)
   - [Usage/Examples](#usageexamples)
   - [Requirements](#requirements)
@@ -70,9 +73,9 @@ This will launch the Rustic_Denk program, and you can use it to encrypt and decr
 
 ## To-Dos
 
-- HashMap addition
-- Case tests
-- Fixing CLI misinputs
+- [ ] HashMap addition
+- [ ] Case tests
+- [ ] Fixing CLI misinputs
 
 
 

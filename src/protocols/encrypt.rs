@@ -27,7 +27,9 @@ pub fn run() -> anyhow::Result<String> {
     let buffered_payload = process_encrypt::key_buffering::run(&encrypted_payload);
     let mut binded_payload = bind(&buffered_payload.1, buffered_payload.0[0].key.len() as i64);
 
-    binded_payload.1 = process_encrypt::decentralization::decentralize(binded_payload.1);
+    
+    // binded_payload.1 = process_encrypt::decentralization::decentralize(binded_payload.1);
+   
     match write_file(
         binded_payload,
         buffered_payload,
@@ -137,7 +139,7 @@ fn write_file(
         to_write_keys.push_str(&to_write);
     }
 
-    to_write_keys = process_encrypt::decentralization::decentralize(to_write_keys);
+    
     keys_file.write(to_write_keys.as_bytes())?;
 
     Ok(())
