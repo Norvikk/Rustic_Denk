@@ -10,3 +10,4 @@ inquire = "0.5.3"
 anyhow = "1.0.69"
 rand = "0.8.5"
 num-bigint = "0.4.3"
+tokio = { version = "1.26.0", features = ["full"] }

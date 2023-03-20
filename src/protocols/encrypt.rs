@@ -8,28 +8,26 @@ use super::process_encrypt::binding::{bind, BindingKey};
 use super::process_encrypt::key_buffering::BufferKey;
 use super::process_encrypt::key_encryption::EncryptionKey;
 
+pub fn run(burst: bool, size_key: i64) -> anyhow::Result<String> {
+    let payload: String;
+    let bricked_path: String;
+    let keys_path: String;
 
-pub fn run() -> anyhow::Result<String> {
-    let payload = retrieve_payload()?;
-
-    let encrypted_payload = process_encrypt::key_encryption::run(&payload);
-    let bricked_path;
-    let keys_path;
-
-    match retrieve_path(("bricked", "keys"), ".dnk") {
-        Ok(value) => {
-            bricked_path = value.0;
-            keys_path = value.1
-        }
-        Err(err) => panic!("{err}"),
+    if burst {
+        payload = String::from("running test: a1+#-? öäüß");
+        (bricked_path, keys_path) = retrieve_path(("bricked", "keys"), ".dnk", true)?;
+    } else {
+        payload = retrieve_payload()?;
+        (bricked_path, keys_path) = retrieve_path(("bricked", "keys"), ".dnk", false)?;
     }
+
+    let encrypted_payload = process_encrypt::key_encryption::run(&payload, size_key);
 
     let buffered_payload = process_encrypt::key_buffering::run(&encrypted_payload);
     let mut binded_payload = bind(&buffered_payload.1, buffered_payload.0[0].key.len() as i64);
 
-    
-    // binded_payload.1 = process_encrypt::decentralization::decentralize(binded_payload.1);
-   
+    binded_payload.1 = process_encrypt::decentralization::decentralize(binded_payload.1);
+
     match write_file(
         binded_payload,
         buffered_payload,
@@ -45,7 +43,9 @@ pub fn run() -> anyhow::Result<String> {
 fn retrieve_payload() -> anyhow::Result<String> {
     let validator = |input: &str| {
         if input.chars().count() < 2 {
-            Ok(Validation::Invalid("You must encrypt AT LEAST 2 characters.".into()))
+            Ok(Validation::Invalid(
+                "You must encrypt AT LEAST 2 characters.".into(),
+            ))
         } else {
             Ok(Validation::Valid)
         }
@@ -59,15 +59,24 @@ fn retrieve_payload() -> anyhow::Result<String> {
 
     Ok(user_payload?)
 }
-fn retrieve_path(name: (&str, &str), format: &str) -> anyhow::Result<(String, String)> {
-    let path = inquire::Text::new("File Directory: ")
-        .with_help_message(
-            "Leaving this empty writes the output to this folder where the app is located",
-        )
-        .with_placeholder("Sample: C:/Users/Administrator/Downloads")
-        .prompt()?
-        .trim()
-        .to_owned();
+fn retrieve_path(
+    name: (&str, &str),
+    format: &str,
+    burst: bool,
+) -> anyhow::Result<(String, String)> {
+    let path;
+    if burst {
+        path = String::from("target");
+    } else {
+        path = inquire::Text::new("File Directory: ")
+            .with_help_message(
+                "Leaving this empty writes the output to this folder where the app is located",
+            )
+            .with_placeholder("Sample: C:/Users/Administrator/Downloads")
+            .prompt()?
+            .trim()
+            .to_owned();
+    }
 
     if path.is_empty() {
         Ok((name.0.to_string() + format, name.1.to_string() + format))
@@ -139,7 +148,7 @@ fn write_file(
         to_write_keys.push_str(&to_write);
     }
 
-    
+    to_write_keys = process_encrypt::decentralization::decentralize(to_write_keys);
     keys_file.write(to_write_keys.as_bytes())?;
 
     Ok(())

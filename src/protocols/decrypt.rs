@@ -1,16 +1,24 @@
 use std::fs;
 
 use super::{
-    process_decrypt,
+    process_decrypt::{self, recentralize::recentralize},
     process_encrypt::{key_buffering::BufferKey, key_encryption::EncryptionKey},
 };
 
-pub fn run() -> anyhow::Result<String> {
-    let keys_path = get_keys_path();
-    let bricked_path = get_bricked_path();
+pub fn run(burst: bool) -> anyhow::Result<String> {
+    let keys_path: String;
+    let bricked_path: String;
 
     let keys_content: String;
     let mut bricked_content: String;
+
+    if burst {
+        keys_path = get_keys_path(true);
+        bricked_path = get_bricked_path(true);
+    } else {
+        keys_path = get_keys_path(false);
+        bricked_path = get_bricked_path(false);
+    }
 
     match read_keys_path(&keys_path) {
         Ok(result) => keys_content = result,
@@ -27,7 +35,9 @@ pub fn run() -> anyhow::Result<String> {
             keys_path, err
         ),
     }
-    let decentralized_chunks = &keys_content;
+
+    let decentralized_chunks = recentralize(&keys_content);
+
     let keys_chunks: Vec<&str> = decentralized_chunks.split("BUFFER").collect();
 
     let buffer_chunk = keys_chunks[0].to_string();
@@ -37,12 +47,11 @@ pub fn run() -> anyhow::Result<String> {
     let carrier: Vec<&str> = vanilla_chunk.split("BINDING").collect();
     let binding_chunk = carrier[1].to_string();
 
-    bricked_content = bricked_content.clone();
+    bricked_content = process_decrypt::recentralize::recentralize(&bricked_content);
 
     let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk)?;
-    
+
     let buffer_keys: Vec<BufferKey> = process_decrypt::debuffer::determine_keys(buffer_chunk)?;
-    
 
     let buffer_package = process_decrypt::unbind::unbind(&binding_chunk, &bricked_content);
 
@@ -52,13 +61,18 @@ pub fn run() -> anyhow::Result<String> {
     Ok(devanilla)
 }
 
-fn get_keys_path() -> String {
-    let keys_path = inquire::Text::new("Keys:")
-        .with_placeholder("/src, C:/Users/Administrator/Downloads")
-        .with_default("")
-        .with_help_message("Enter the directory where the KEYS file is stored")
-        .prompt()
-        .unwrap();
+fn get_keys_path(burst: bool) -> String {
+    let keys_path;
+    if burst {
+        keys_path = String::from("target");
+    } else {
+        keys_path = inquire::Text::new("Keys:")
+            .with_placeholder("/src, C:/Users/Administrator/Downloads")
+            .with_default("")
+            .with_help_message("Enter the directory where the KEYS file is stored")
+            .prompt()
+            .unwrap();
+    }
 
     if keys_path.is_empty() {
         return "keys.dnk".to_string();
@@ -67,13 +81,19 @@ fn get_keys_path() -> String {
     }
 }
 
-fn get_bricked_path() -> String {
-    let keys_path = inquire::Text::new("Bricked:")
-        .with_placeholder("/src, C:/Users/Administrator/Downloads")
-        .with_default("")
-        .with_help_message("Enter the directory where the BRICKED file is stored")
-        .prompt()
-        .unwrap();
+fn get_bricked_path(burst: bool) -> String {
+    let keys_path;
+
+    if burst {
+        keys_path = String::from("target");
+    } else {
+        keys_path = inquire::Text::new("Bricked:")
+            .with_placeholder("/src, C:/Users/Administrator/Downloads")
+            .with_default("")
+            .with_help_message("Enter the directory where the BRICKED file is stored")
+            .prompt()
+            .unwrap();
+    }
 
     if keys_path.is_empty() {
         return "bricked.dnk".to_string();
