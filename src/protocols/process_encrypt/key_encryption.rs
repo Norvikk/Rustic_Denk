@@ -1,8 +1,7 @@
 use crate::protocols::tooling::key_generation::unique_key;
 
 
-pub fn run(user_text: &str) -> (Vec<EncryptionKey>, String) {
-    let size_key: i64 = 2;
+pub fn run(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, String) {
     let keys = initialize_keys(user_text, size_key);
 
     return (keys.0, keys.1);

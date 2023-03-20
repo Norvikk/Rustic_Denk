@@ -1,11 +1,9 @@
-use rustic_denk_algo::synapse_host;
-
 use crate::protocols::process_encrypt::key_encryption::EncryptionKey;
 
-pub fn determine_keys(chunk: String, synapse: &str) -> anyhow::Result<Vec<EncryptionKey>> {
+pub fn determine_keys(chunk: String) -> anyhow::Result<Vec<EncryptionKey>> {
     let mut keys: Vec<EncryptionKey> = vec![];
 
-    let split_chunk: Vec<&str> = chunk.split(synapse).collect();
+    let split_chunk: Vec<&str> = chunk.split("?s§0-a").collect();
 
     let mut jump = false;
     let mut jump_value = "";

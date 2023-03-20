@@ -5,14 +5,24 @@ use super::{
     process_encrypt::{key_buffering::BufferKey, key_encryption::EncryptionKey},
 };
 
-
-pub fn run() -> anyhow::Result<()> {
-
-    let keys_path = get_keys_path();
-    let bricked_path = get_bricked_path();
+pub fn run(burst: bool) -> anyhow::Result<String> {
+    let keys_path: String;
+    let bricked_path: String;
 
     let keys_content: String;
     let mut bricked_content: String;
+
+    if burst{
+        keys_path = get_keys_path(true);
+        bricked_path = get_bricked_path(true);
+    } else {
+        keys_path = get_keys_path(false);
+        bricked_path = get_bricked_path(false);
+    }
+
+    
+
+    
 
     match read_keys_path(&keys_path) {
         Ok(result) => keys_content = result,
@@ -29,7 +39,6 @@ pub fn run() -> anyhow::Result<()> {
             keys_path, err
         ),
     }
-    let synapse_design = "?s4";
     let decentralized_chunks = process_decrypt::recentralize::recentralize(&keys_content);
     let keys_chunks: Vec<&str> = decentralized_chunks.split("BUFFER").collect();
 
@@ -42,29 +51,32 @@ pub fn run() -> anyhow::Result<()> {
 
     bricked_content = process_decrypt::recentralize::recentralize(&bricked_content);
 
-    let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk, synapse_design)?;
+    let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk)?;
     
-    let buffer_keys: Vec<BufferKey> = process_decrypt::debuffer::determine_keys(buffer_chunk, synapse_design)?;
+    let buffer_keys: Vec<BufferKey> = process_decrypt::debuffer::determine_keys(buffer_chunk)?;
     
 
-    let buffer_package = process_decrypt::unbind::unbind(&binding_chunk, &bricked_content, synapse_design);
+    let buffer_package = process_decrypt::unbind::unbind(&binding_chunk, &bricked_content);
 
     let debuffered = process_decrypt::debuffer::determine_payload(buffer_keys, &buffer_package)?;
     let devanilla = process_decrypt::vanilla::determine_payload(vanilla_keys, &debuffered)?;
-    
-    println!("{:?}", (debuffered, &devanilla));
 
-    println!("Decrypted value: {}",devanilla);
-    Ok(())
+    Ok(devanilla)
 }
 
-fn get_keys_path() -> String {
-    let keys_path = inquire::Text::new("Keys:")
+fn get_keys_path(burst: bool) -> String {
+    let keys_path;
+    if burst {
+        keys_path = String::from("target");
+    } else {
+ keys_path = inquire::Text::new("Keys:")
         .with_placeholder("/src, C:/Users/Administrator/Downloads")
         .with_default("")
         .with_help_message("Enter the directory where the KEYS file is stored")
         .prompt()
         .unwrap();
+    }
+    
 
     if keys_path.is_empty() {
         return "keys.dnk".to_string();
@@ -73,14 +85,22 @@ fn get_keys_path() -> String {
     }
 }
 
-fn get_bricked_path() -> String {
-    let keys_path = inquire::Text::new("Bricked:")
+fn get_bricked_path(burst: bool) -> String {
+    let keys_path;
+
+    if burst{
+        keys_path = String::from("target");
+    } else {
+         keys_path = inquire::Text::new("Bricked:")
         .with_placeholder("/src, C:/Users/Administrator/Downloads")
         .with_default("")
         .with_help_message("Enter the directory where the BRICKED file is stored")
         .prompt()
         .unwrap();
 
+    }
+
+    
     if keys_path.is_empty() {
         return "bricked.dnk".to_string();
     } else {
