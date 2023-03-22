@@ -1,49 +1,45 @@
-use inquire::{ui::RenderConfig, *}; 
+use inquire::{validator::Validation, *};
 
 pub fn get_option() -> anyhow::Result<i8> {
-    let key: CustomType<u8> = CustomType {
-        message: "Option: ",
-        help_message: Some("Any of the numbers"),
-        error_message: "Please type a valid number".into(),
-        default: Some(0),
-        placeholder: Some("0"),
-        formatter: &|i| format!("{i}"),
-        default_value_formatter: &|i| format!("{i}"),
-        render_config: RenderConfig::default(),
-        parser: &|i| match i.parse::<u8>() {
-            Ok(i) => Ok(i),
-            Err(_) => Err(()),
-        },
-        validators: vec![],
+    let validator = |input: &i8| {
+        if *input > 1 {
+            Ok(Validation::Invalid("This number is not valid".into()))
+        } else {
+            Ok(Validation::Valid)
+        }
     };
 
-    let key = key.prompt()? as i8;
+    let key = CustomType::<i8>::new("Which option?")
+        .with_formatter(&|i| format!("{:.2}", i))
+        .with_error_message("Please type a valid number.")
+        .with_help_message("Any of the displayed numbers")
+        .with_placeholder("0")
+        .with_validator(validator)
+        .prompt()?;
+
     Ok(key)
 }
 
-
-pub fn get_key_size() -> anyhow::Result<i64>  {
-    
-
-
-    let key: CustomType<u64> = CustomType {
-        message: "Iteration keys: (lower -> faster) ",
-        help_message: Some("write the length for the keys"),
-        error_message: "Please type a valid number higher than 0".into(),
-        default: Some(6),
-        placeholder: Some("12"),
-        formatter: &|i| format!("{i}"),
-        default_value_formatter: &|i| format!("{i}"),
-        render_config: RenderConfig::default(),
-        parser: &|i| match i.parse::<u64>() {
-            Ok(i) => Ok(i),
-            Err(_) => Err(()),
-        },
-        validators: vec![],
+pub fn get_key_size() -> anyhow::Result<i64> {
+    let validator = |input: &i64| {
+        if *input >= i64::MAX {
+            Ok(Validation::Invalid(
+                "The number is too big for the supported format i64".into(),
+            ))
+        } else if *input < 2 {
+            Ok(Validation::Invalid("The number is too small".into()))
+        } else {
+            Ok(Validation::Valid)
+        }
     };
 
-    let key = key.prompt()? as i64;
-    
-    Ok(key)
+    let key = CustomType::<i64>::new("Keys-Length ")
+        .with_formatter(&|i| format!("{:.2}", i))
+        .with_error_message("The number is either too small or too big.")
+        .with_help_message("Iteraion keys: (lower -> faster) : (512 is high)")
+        .with_placeholder("[low: 4] [med: 64] [high: 128 - 512")
+        .with_validator(validator)
+        .prompt()?;
 
+    Ok(key)
 }

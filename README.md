@@ -75,8 +75,9 @@ This will launch the Rustic_Denk program, and you can use it to encrypt and decr
 
 - [ ] HashMap addition
 - [x] Case tests
-- [ ] Fixing CLI misinputs
+- [x] Fixing CLI misinputs
 - [ ] Fixing Decentralization not liking symbols
+- [ ] O(n) Time
 
 
 
@@ -84,4 +85,4 @@ This will launch the Rustic_Denk program, and you can use it to encrypt and decr
 
 ## Limitations
 
-- "€" is broken. Everything else seems to work
+- Not all symbols are supported (€)
