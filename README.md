@@ -77,7 +77,7 @@ This will launch the Rustic_Denk program, and you can use it to encrypt and decr
 - [x] Case tests
 - [x] Fixing CLI misinputs
 - [ ] Fixing Decentralization not liking symbols
-- [ ] O(n) Time
+- [ ] O(n) time complexity
 
 
 
