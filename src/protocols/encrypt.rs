@@ -28,7 +28,7 @@ pub fn run(is_burst: bool, size_key: i64) -> anyhow::Result<String> {
     let buffered_encrypted_bundle = process_encrypt::key_buffering::start(&vanilla_encrypted_bundle);
     let mut binded_encrypted_bundle = bind(&buffered_encrypted_bundle.1, buffered_encrypted_bundle.0[0].key.len() as i64);
 
-    let decentralization_cancel_triggers: Vec<char> = "!$%&'()*,./;<=>@[\\]^_`{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿×÷".chars().collect();
+    let decentralization_cancel_triggers: Vec<char> = "!$%€&'()*,./;<=>@[\\]^_`{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿×÷".chars().collect();
 
     for current_entry in user_plain_text.chars() {
         if decentralization_cancel_triggers.contains(&current_entry) {
