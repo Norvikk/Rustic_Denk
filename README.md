@@ -89,5 +89,5 @@ cargo test
 ## Limitations
 
 - Not optimized
-- Not all input is handled (mistypes = compiler errors)
+- Not all inputs are handled 
 
