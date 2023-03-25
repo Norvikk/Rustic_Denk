@@ -44,7 +44,7 @@ mod burst_functionality {
 pub fn forward_process(option: i8, key_size: i64) -> anyhow::Result<String> {
     match option {
         0 => Ok(protocols::encrypt::run(true, key_size)?),
-        1 => Ok(protocols::decrypt::run(true)?),
+        1 => Ok(protocols::decrypt::start(true, true)?),
         _ => panic!("No such option index {}", option),
     }
 }

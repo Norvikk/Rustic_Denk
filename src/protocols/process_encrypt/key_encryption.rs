@@ -1,8 +1,8 @@
-use crate::protocols::tooling::key_generation::unique_key;
+use crate::protocols::tooling::key_generation::get_unique_key;
 
 
-pub fn run(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, String) {
-    let keys = initialize_keys(user_text, size_key);
+pub fn start(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, String) {
+    let keys = get_vanilla_keys(user_text, size_key);
 
     return (keys.0, keys.1);
 }
@@ -15,7 +15,7 @@ pub struct EncryptionKey {
 
 
 
-fn initialize_keys(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, String) {
+fn get_vanilla_keys(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, String) {
     let mut encryption_keys: Vec<EncryptionKey> = vec![];
     let mut is_contained: bool;
     let mut bricked_message: String = String::new();
@@ -32,7 +32,7 @@ fn initialize_keys(user_text: &str, size_key: i64) -> (Vec<EncryptionKey>, Strin
 
         if !is_contained {
             let carrier1 = EncryptionKey {
-                key: unique_key(size_key),
+                key: get_unique_key(size_key),
                 symbol: letter,
             };
 

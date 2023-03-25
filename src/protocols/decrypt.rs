@@ -1,67 +1,77 @@
 use std::fs;
 
 use super::{
-    process_decrypt::{self, recentralize::recentralize},
+    process_decrypt::{self, recentralize::{recentralize}},
     process_encrypt::{key_buffering::BufferKey, key_encryption::EncryptionKey},
 };
 
-pub fn run(burst: bool) -> anyhow::Result<String> {
-    let keys_path: String;
-    let bricked_path: String;
+pub fn start(is_burst: bool, is_decentralization: bool) -> anyhow::Result<String> {
+    let user_keys_file_path: String;
+    let user_bricked_file_path: String;
+    let recentralized_read_file;
+    let read_keys_content: String;
+    let read_bricked_content: String;
+    let recentralized;
 
-    let keys_content: String;
-    let mut bricked_content: String;
-
-    if burst {
-        keys_path = get_keys_path(true);
-        bricked_path = get_bricked_path(true);
+    if is_burst {
+        user_keys_file_path = request_keys_file_path(true);
+        user_bricked_file_path = reqest_bricked_file_path(true);
     } else {
-        keys_path = get_keys_path(false);
-        bricked_path = get_bricked_path(false);
+        user_keys_file_path = request_keys_file_path(false);
+        user_bricked_file_path = reqest_bricked_file_path(false);
     }
 
-    match read_keys_path(&keys_path) {
-        Ok(result) => keys_content = result,
+    match read_keys_file_by_path(&user_keys_file_path) {
+        Ok(result) => read_keys_content = result,
         Err(err) => panic!(
             "Key file path provided <{}> caused this error: {}",
-            keys_path, err
+            user_keys_file_path, err
         ),
     }
 
-    match read_bricked_path(&bricked_path) {
-        Ok(result) => bricked_content = result,
+    match read_bricked_file_by_path(&user_bricked_file_path) {
+        Ok(result) => read_bricked_content = result,
         Err(err) => panic!(
             "Bricked file path provided <{}> caused this error: {}",
-            keys_path, err
+            user_keys_file_path, err
         ),
     }
+    
 
-    let decentralized_chunks = recentralize(&keys_content);
+    if is_decentralization {
+        recentralized_read_file = recentralize(&read_keys_content);
+        recentralized = process_decrypt::recentralize::recentralize(&read_bricked_content);
+    } else {
+       recentralized_read_file = read_keys_content;
+       recentralized = read_bricked_content;
+    }
 
-    let keys_chunks: Vec<&str> = decentralized_chunks.split("BUFFER").collect();
+    let buffer_split_chunk: Vec<&str> = recentralized_read_file.split("BUFFER").collect();
 
-    let buffer_chunk = keys_chunks[0].to_string();
+    let buffer_chunk = buffer_split_chunk[0].to_string();
+    let vanilla_chunk = buffer_split_chunk[1].to_string();
 
-    let vanilla_chunk = keys_chunks[1].to_string();
-
-    let carrier: Vec<&str> = vanilla_chunk.split("BINDING").collect();
-    let binding_chunk = carrier[1].to_string();
-
-    bricked_content = process_decrypt::recentralize::recentralize(&bricked_content);
+    let binding_chunk = vanilla_chunk.split("BINDING").collect::<Vec<&str>>()[1].to_string();
 
     let vanilla_keys: Vec<EncryptionKey> = process_decrypt::vanilla::determine_keys(vanilla_chunk)?;
-
     let buffer_keys: Vec<BufferKey> = process_decrypt::debuffer::determine_keys(buffer_chunk)?;
 
-    let buffer_package = process_decrypt::unbind::unbind(&binding_chunk, &bricked_content);
+    
 
-    let debuffered = process_decrypt::debuffer::determine_payload(buffer_keys, &buffer_package)?;
-    let devanilla = process_decrypt::vanilla::determine_payload(vanilla_keys, &debuffered)?;
+    
 
-    Ok(devanilla)
+    let buffer_block = process_decrypt::unbind::unbind(
+        &binding_chunk,
+        &recentralized,
+    );
+
+    let debuffered = process_decrypt::debuffer::determine_payload(buffer_keys, &buffer_block)?;
+    let vanilla_read = process_decrypt::vanilla::determine_payload(vanilla_keys, &debuffered)?;
+
+    Ok(vanilla_read)
 }
 
-fn get_keys_path(burst: bool) -> String {
+fn request_keys_file_path(burst: bool) -> String {
     let keys_path;
     if burst {
         keys_path = String::from("target");
@@ -81,10 +91,10 @@ fn get_keys_path(burst: bool) -> String {
     }
 }
 
-fn get_bricked_path(burst: bool) -> String {
+fn reqest_bricked_file_path(is_burst: bool) -> String {
     let keys_path;
 
-    if burst {
+    if is_burst {
         keys_path = String::from("target");
     } else {
         keys_path = inquire::Text::new("Bricked:")
@@ -102,10 +112,10 @@ fn get_bricked_path(burst: bool) -> String {
     }
 }
 
-fn read_keys_path(path: &str) -> anyhow::Result<String> {
+fn read_keys_file_by_path(path: &str) -> anyhow::Result<String> {
     Ok(fs::read_to_string(&path)?)
 }
 
-fn read_bricked_path(path: &str) -> anyhow::Result<String> {
+fn read_bricked_file_by_path(path: &str) -> anyhow::Result<String> {
     Ok(fs::read_to_string(&path)?)
 }

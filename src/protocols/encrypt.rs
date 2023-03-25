@@ -8,39 +8,55 @@ use super::process_encrypt::binding::{bind, BindingKey};
 use super::process_encrypt::key_buffering::BufferKey;
 use super::process_encrypt::key_encryption::EncryptionKey;
 
-pub fn run(burst: bool, size_key: i64) -> anyhow::Result<String> {
-    let payload: String;
-    let bricked_path: String;
-    let keys_path: String;
+pub fn run(is_burst: bool, size_key: i64) -> anyhow::Result<String> {
+    let user_plain_text: String;
+    let user_bricked_path: String;
+    let user_keys_path: String;
 
-    if burst {
-        payload = String::from("running test: a1+#-? öäüß");
-        (bricked_path, keys_path) = retrieve_path(("bricked", "keys"), ".dnk", true)?;
+    let mut break_decentralization_process: bool = false;
+
+    if is_burst {
+        user_plain_text = String::from("running test: a1+#-? öäüß");
+        (user_bricked_path, user_keys_path) = request_write_path(("bricked", "keys"), ".dnk", true)?;
     } else {
-        payload = retrieve_payload()?;
-        (bricked_path, keys_path) = retrieve_path(("bricked", "keys"), ".dnk", false)?;
+        user_plain_text = request_plain_text()?;
+        (user_bricked_path, user_keys_path) = request_write_path(("bricked", "keys"), ".dnk", false)?;
     }
 
-    let encrypted_payload = process_encrypt::key_encryption::run(&payload, size_key);
+    let vanilla_encrypted_bundle = process_encrypt::key_encryption::start(&user_plain_text, size_key);
 
-    let buffered_payload = process_encrypt::key_buffering::run(&encrypted_payload);
-    let mut binded_payload = bind(&buffered_payload.1, buffered_payload.0[0].key.len() as i64);
+    let buffered_encrypted_bundle = process_encrypt::key_buffering::start(&vanilla_encrypted_bundle);
+    let mut binded_encrypted_bundle = bind(&buffered_encrypted_bundle.1, buffered_encrypted_bundle.0[0].key.len() as i64);
 
-    binded_payload.1 = process_encrypt::decentralization::decentralize(binded_payload.1);
+    let decentralization_cancel_triggers: Vec<char> = "!$%&'()*,./;<=>@[\\]^_`{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿×÷".chars().collect();
 
-    match write_file(
-        binded_payload,
-        buffered_payload,
-        encrypted_payload.0,
-        bricked_path,
-        keys_path,
+    for current_entry in user_plain_text.chars() {
+        if decentralization_cancel_triggers.contains(&current_entry) {
+            break_decentralization_process = true;
+            println!("\nThe given context had unstable symbols therefore the DECENTRALIZATION feature has been disabled.\nUpon decrypting, please use option 2 (no decentralization).\n");
+            continue;
+        }
+    }
+
+    if !break_decentralization_process {
+        binded_encrypted_bundle.1 = process_encrypt::decentralization::decentralize(binded_encrypted_bundle.1);
+    }
+    
+
+    match write_files_to_dir(
+        binded_encrypted_bundle,
+        buffered_encrypted_bundle,
+        vanilla_encrypted_bundle.0,
+        user_bricked_path,
+        user_keys_path,
+        break_decentralization_process,
     ) {
         Ok(_) => Ok(String::from("Success converting.")),
         Err(err) => panic!("Critical error {} while encrypting", err),
     }
 }
 
-fn retrieve_payload() -> anyhow::Result<String> {
+fn request_plain_text() -> anyhow::Result<String> {
     let validator = |input: &str| {
         if input.chars().count() < 2 {
             Ok(Validation::Invalid(
@@ -59,13 +75,13 @@ fn retrieve_payload() -> anyhow::Result<String> {
 
     Ok(user_payload?)
 }
-fn retrieve_path(
-    name: (&str, &str),
-    format: &str,
-    burst: bool,
+fn request_write_path(
+    file_names: (&str, &str),
+    file_format: &str,
+    is_burst: bool,
 ) -> anyhow::Result<(String, String)> {
     let path;
-    if burst {
+    if is_burst {
         path = String::from("target");
     } else {
         path = inquire::Text::new("File Directory: ")
@@ -79,20 +95,22 @@ fn retrieve_path(
     }
 
     if path.is_empty() {
-        Ok((name.0.to_string() + format, name.1.to_string() + format))
+        Ok((file_names.0.to_string() + file_format, file_names.1.to_string() + file_format))
     } else {
         Ok((
-            path.clone() + "/" + name.0 + format,
-            path + "/" + name.1 + format,
+            path.clone() + "/" + file_names.0 + file_format,
+            path + "/" + file_names.1 + file_format,
         ))
     }
 }
-fn write_file(
+fn write_files_to_dir(
     binded_payload: (Vec<BindingKey>, String),
     encrypted_payload: (Vec<BufferKey>, String),
     keys: Vec<EncryptionKey>,
     bricked_path: String,
     keys_path: String,
+    break_decentralization: bool
+
 ) -> anyhow::Result<()> {
     let mut bricked_file: File = File::create(&bricked_path)?;
     let mut keys_file: File = File::create(&keys_path)?;
@@ -100,9 +118,7 @@ fn write_file(
 
     bricked_file.write(binded_payload.1.as_bytes())?;
 
-    let last_object_0 = encrypted_payload.0[encrypted_payload.0.len() - 1]
-        .key
-        .clone();
+    let last_object_0 = encrypted_payload.0[encrypted_payload.0.len() - 1].key.clone();
     for object in encrypted_payload.0.iter() {
         let to_write: String;
 
@@ -148,8 +164,11 @@ fn write_file(
         to_write_keys.push_str(&to_write);
     }
 
-    to_write_keys = process_encrypt::decentralization::decentralize(to_write_keys);
-    keys_file.write(to_write_keys.as_bytes())?;
+    
 
+    if !break_decentralization {
+        to_write_keys = process_encrypt::decentralization::decentralize(to_write_keys);
+    }
+    keys_file.write(to_write_keys.as_bytes())?;
     Ok(())
 }

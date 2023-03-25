@@ -69,15 +69,18 @@ This will compile the Rustic_Denk source code and create the binary in the `targ
 
 This will launch the Rustic_Denk program, and you can use it to encrypt and decrypt your text using a key.
 
-
+Upon changing code, test core functionality with 
+```
+cargo test
+```
 
 ## To-Dos
 
-- [ ] HashMap addition
+
 - [x] Case tests
 - [x] Fixing CLI misinputs
-- [ ] Fixing Decentralization not liking symbols
-- [ ] O(n) time complexity
+- [x] Fixing Decentralization not liking symbols
+
 
 
 
@@ -85,4 +88,6 @@ This will launch the Rustic_Denk program, and you can use it to encrypt and decr
 
 ## Limitations
 
-- Not all symbols are supported (€)
+- Not optimized
+- Not all input is handled (mistypes = compiler errors)
+

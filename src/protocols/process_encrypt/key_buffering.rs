@@ -1,14 +1,14 @@
-use crate::protocols::tooling::key_generation::unique_key;
+use crate::protocols::tooling::key_generation::get_unique_key;
 
 use super::key_encryption::EncryptionKey;
 
-pub fn run(encrypted_payload: &(Vec<EncryptionKey>, String)) -> (Vec<BufferKey>, String) {
+pub fn start(encrypted_payload: &(Vec<EncryptionKey>, String)) -> (Vec<BufferKey>, String) {
     let mut buffer_payload: (Vec<BufferKey>, String) = (vec![], String::new());
     let length_key = encrypted_payload.0[1].key.chars().count() as i64 / 2;
 
     for indexed in &encrypted_payload.0 {
         buffer_payload.0.push(BufferKey {
-            key: unique_key(length_key),
+            key: get_unique_key(length_key),
             symbol: indexed.key.clone(),
         })
     }

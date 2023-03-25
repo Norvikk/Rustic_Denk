@@ -1,4 +1,4 @@
-use crate::protocols::tooling::key_generation::unique_key;
+use crate::protocols::tooling::key_generation::get_unique_key;
 
 
 pub fn bind(bricked: &str, keysize: i64) -> (Vec<BindingKey>, String) {
@@ -19,7 +19,7 @@ pub fn bind(bricked: &str, keysize: i64) -> (Vec<BindingKey>, String) {
             cache_looper = bricked;
             looper = true;
         } else {
-            let entry = unique_key(keysize * 2);
+            let entry = get_unique_key(keysize * 2);
             binded_keys.push(BindingKey {
                 symbol: (cache_looper.clone(), bricked),
                 key: (entry.clone()),

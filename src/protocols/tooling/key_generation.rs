@@ -2,7 +2,7 @@ static mut LIST: Vec<String> = Vec::new();
 
 use rand::Rng;
 
-pub fn unique_key(length: i64) -> String {
+pub fn get_unique_key(length: i64) -> String {
     unsafe {
         let mixed: Vec<char> = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNO0123456789PQRSTUVWXYZ!#$%&()*+,-./:;<=>?@[]^_`{|}".chars().collect();
         let mut rng = rand::thread_rng();
