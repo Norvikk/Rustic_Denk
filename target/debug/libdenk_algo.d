@@ -1,0 +1,1 @@
+C:\Users\Administrator\Documents\Denk\target\debug\libdenk_algo.rlib: C:\Users\Administrator\Documents\Denk\src\cli\display.rs C:\Users\Administrator\Documents\Denk\src\cli\inquire.rs C:\Users\Administrator\Documents\Denk\src\cli\mod.rs C:\Users\Administrator\Documents\Denk\src\lib.rs C:\Users\Administrator\Documents\Denk\src\process_config.rs
