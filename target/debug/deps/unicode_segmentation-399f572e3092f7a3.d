@@ -1,9 +1,0 @@
-C:\Users\Administrator\Documents\Denk\target\debug\deps\unicode_segmentation-399f572e3092f7a3.rmeta: C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\lib.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\grapheme.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\sentence.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\word.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\tables.rs
-
-C:\Users\Administrator\Documents\Denk\target\debug\deps\unicode_segmentation-399f572e3092f7a3.d: C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\lib.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\grapheme.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\sentence.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\word.rs C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\tables.rs
-
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\lib.rs:
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\grapheme.rs:
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\sentence.rs:
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\word.rs:
-C:\Users\Administrator\.cargo\registry\src\github.com-1ecc6299db9ec823\unicode-segmentation-1.10.1\src\tables.rs:
