@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
+pub mod actions;
 pub mod cli;
 pub mod processes;
 pub mod utility;
-pub mod actions;
 
 pub struct ProcessConfig {
     // System
@@ -19,15 +19,29 @@ pub struct ProcessConfig {
 
     // Read
     pub read_keys: String,
-    pub read_blur: String
+    pub read_blur: String,
 }
-
-
 
 impl ProcessConfig {
     pub fn flush(&mut self) {
         self.system_synapse.clear();
+
+        self.user_clear_payload.clear();
         self.user_key_length = 0;
+
+        self.process_soft_bundle.clear();
+        self.process_blur_payload.clear();
+
+        self.read_blur.clear();
+        self.read_keys.clear();
+    }
+
+    pub fn flush_keys(&mut self) {
+        self.read_keys.clear();
+    }
+
+    pub fn flush_blur(&mut self) {
+        self.read_blur.clear();
     }
 
     pub fn cli_display(&self) {
@@ -46,7 +60,6 @@ mod functionality_tests {
     use std::collections::HashMap;
 
     use crate::ProcessConfig;
-
 
     #[test]
     fn struct_process_config() {
