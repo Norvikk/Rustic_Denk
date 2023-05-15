@@ -13,7 +13,7 @@ pub fn soft_encrypt(config: &mut ProcessConfig) {
     for letter in config.user_clear_payload.chars() {
         
         if !known_entries.contains(&letter) {
-            config.process_soft_bundle.insert(letter.to_string(), utility::generate::random_string(true, true, true, true, config.user_key_length));
+            config.process_soft_bundle.insert(letter.to_string(), utility::generate::random_string(config.user_key_length));
             known_entries.push(letter);
         } else {
             

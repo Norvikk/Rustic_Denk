@@ -14,7 +14,7 @@ fn main() -> anyhow::Result<()> {
 
     let mut config: ProcessConfig = ProcessConfig {
         // Need initialization
-        system_synapse: utility::generate::random_string(true, true, true, true, 10), // If size != 10 change /processes/justify_keys/assign_synapse/count_of_steps
+        system_synapse: utility::generate::random_string(10), // If size != 10 change /processes/justify_keys/assign_synapse/count_of_steps
 
         user_key_length: 1_000_00,
         user_clear_payload: String::from("hello world"),
@@ -22,6 +22,7 @@ fn main() -> anyhow::Result<()> {
         // Need no initialization
         process_soft_bundle: HashMap::new(),
         process_blur_payload: String::new(),
+
         read_blur: String::new(),
         read_keys: String::new(),
     };
@@ -39,21 +40,20 @@ fn main() -> anyhow::Result<()> {
 
     // request the user process with crate inquire then forwards that index to choose a process
     // forward_process(&mut config, cli::inquire::process(processes)?);
+    // println!("{}", config.user_clear_payload);
 
-    forward_process(&mut config, 0);
-
-   //  println!("The median is {} ms", benchmark_process(&mut config, 1, 200));
+     println!("The median is {} ms at 200 loops", benchmark_process(&mut config, 0, 200));
     
 
     Ok(())
 }
 
-fn forward_process(config: &mut ProcessConfig, index: usize) -> usize {
+fn forward_process(config: &mut ProcessConfig, index: usize, benchmark: bool) -> usize {
     let start_time = Instant::now();
     match index {
         0 => {
-            processes::encrypt::encrypt(config);
-            actions::write::files(&config, ".dnk").unwrap();
+            processes::encrypt::encrypt(config); // 40ms | ITER: 1m (accuracy 200 loops)
+             actions::write::files(&config, ".dnk").unwrap(); // 10 ms | ITER: 1M (accuracy 200 loops)
         }
         1 => {processes::decrypt::decrypt(config);}
         2 => std::process::exit(-1),
@@ -65,15 +65,19 @@ fn forward_process(config: &mut ProcessConfig, index: usize) -> usize {
         5 => {}
         _ => {}
     }
-     println!("Process {} took {} ms", index, start_time.elapsed().as_millis());
+    if !benchmark {println!("Process {} took {} ms", index, start_time.elapsed().as_millis());}
+     
 
     return start_time.elapsed().as_millis() as usize;
 }
 
+
+
 fn benchmark_process(config: &mut ProcessConfig, process_index: usize, loops: usize) -> usize {
     let mut timings: usize = 0;
-
-    for _ in 0..loops { timings += forward_process(config, process_index); }
+    let old_config = config.clone();
+    for _ in 0..loops { timings += forward_process(config, process_index, true); config.reset_to(&old_config)}
+    
 
     timings/loops
 }

@@ -1,10 +1,13 @@
-use std::collections::HashMap;
+use std::{collections::HashMap};
 
 pub mod actions;
 pub mod cli;
 pub mod processes;
 pub mod utility;
 
+
+
+#[derive(Clone)]
 pub struct ProcessConfig {
     // System
     pub system_synapse: String,
@@ -42,6 +45,23 @@ impl ProcessConfig {
 
     pub fn flush_blur(&mut self) {
         self.read_blur.clear();
+    }
+
+    pub fn reset_to(&mut self, default: &ProcessConfig) {
+        // System
+        self.system_synapse = default.system_synapse.clone();
+
+        // User
+        self.user_key_length = default.user_key_length;
+        self.user_clear_payload = default.user_clear_payload.clone();
+
+        // Process
+        self.process_soft_bundle = default.process_soft_bundle.clone();
+        self.process_blur_payload = default.process_blur_payload.clone();
+
+        // Read
+        self.read_keys = default.read_keys.clone();
+        self.read_blur = default.read_blur.clone();
     }
 
     pub fn cli_display(&self) {
