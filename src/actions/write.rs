@@ -12,7 +12,7 @@ pub fn files(config: &ProcessConfig, format: &str) -> anyhow::Result<()>{
 
     let mut blur_file = File::create(format!("Brick{}", format))?;
 
-    blur_file.write(config.process_blur_payload.as_bytes())?;
+    blur_file.write(config.process_created_blur.as_bytes())?;
 
     Ok(())
 }
