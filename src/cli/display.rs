@@ -8,6 +8,6 @@ pub fn developer() {
         "V. 1.0".red(),
         "|".bold(),
         "Norvik".red(),
-        "BUILD: optimized - API".on_white().black().bold(),
+        "BUILD: optimized - API".red().bold(),
     );
 }

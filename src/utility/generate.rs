@@ -1,7 +1,7 @@
 use fastrand;
 
 pub fn random_string(size: usize) -> String {
-    let rng = fastrand::Rng::new();
+   let rng = fastrand::Rng::new();
     let mut result = String::new();
     result.reserve(size);
 
@@ -14,8 +14,7 @@ pub fn random_string(size: usize) -> String {
     ];
 
     for _ in 0..size {
-        let random_index = rng.usize(0..options_chars.len());
-        result.push(options_chars[random_index]);
+        result.push(options_chars[rng.usize(0..options_chars.len())]);
     }
 
     result

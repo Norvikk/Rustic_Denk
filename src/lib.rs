@@ -49,6 +49,10 @@ impl ProcessConfig {
         self.read_blur.clear();
     }
 
+    pub fn flush_user_clear_payload(&mut self) {
+        self.user_clear_payload = String::new();
+    }
+
     pub fn reset_to(&mut self, default: &ProcessConfig) {
         // System
         self.system_synapse = default.system_synapse.clone();
