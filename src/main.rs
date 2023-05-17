@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 use std::time::Instant;
-use std::io::{self, Read};
-
-
+use crossterm::event::{poll, read, Event};
 use colored::Colorize;
+
 use denk_algo::actions;
 use denk_algo::cli;
 use denk_algo::processes;
@@ -25,8 +24,8 @@ fn main() {
         // Creates a new instance of ProcessConfig. This is the root Config which will be used by all processes
         let mut config: ProcessConfig = ProcessConfig {
             // Need discrete initialization
-            user_key_length: 1_000_000,
-            user_clear_payload: String::from("hello world"),
+            user_key_length: 1_000, // user this up
+            user_clear_payload: String::from("ur mum"), // user this up
     
             // Need no initialization
             system_synapse: utility::generate::random_string(10),
@@ -38,14 +37,13 @@ fn main() {
             read_keys: String::new(),
         };
     
-        
-        // Reserves n amount of bytes for that string. Useful when storing many millions of characters gradually increasing
-        config.process_created_blur.reserve(config.user_key_length);
-    
         // request the user process with crate inquire then forwards that index to choose a process
         forward_process(&mut config, cli::inquire::process(processes.clone()));
-        println!("The encrypted entry is: {}", config.user_clear_payload.bold().black());
-    
+
+        if !config.user_clear_payload.is_empty() {
+            println!("The processed result is: {}", config.user_clear_payload.bold().black());
+        }
+        
         
         press_any_key_to_continue();
         clearscreen::clear().unwrap();
@@ -61,10 +59,11 @@ fn forward_process(config: &mut ProcessConfig, index: usize) -> usize {
         0 => {
             processes::encrypt::encrypt(config);
             actions::write::files(&config, ".dnk");
+            
         }
         1 => {
             processes::decrypt::decrypt(config);
-            println!("The decrypted entry is: {}", config.user_clear_payload.bold().black());
+            
         }
         2 => std::process::exit(-1),
         3 => {
@@ -81,6 +80,7 @@ fn forward_process(config: &mut ProcessConfig, index: usize) -> usize {
         5 => {actions::write::flush_dnk();}
         _ => {}
     }
+    
     return start_time.elapsed().as_millis() as usize;
 }
 
@@ -95,12 +95,15 @@ fn benchmark_process(config: &mut ProcessConfig, process_index: usize, loops: us
 }
 
 fn press_any_key_to_continue() {
-    let mut stdin = io::stdin();
-    let mut buffer = [0u8; 1];
+    println!("{}", "\n────────────────────────────────".red().bold());
+    println!("{}", "   Press enter to continue...   ".bold());
+    println!("{}", "────────────────────────────────\n".red().bold());
     
-    println!("{}", "\n──────────────────────────────────".red().bold());
-    println!("{}", "   Press any key to continue...   ".bold());
-    println!("{}", "──────────────────────────────────\n".red().bold());
-    
-    let _ = stdin.read_exact(&mut buffer);
+    loop {
+        if poll(std::time::Duration::from_secs(0)).unwrap() {
+            if let Event::Key(_) = read().unwrap() {
+                break;
+            }
+        }
+    }
 }

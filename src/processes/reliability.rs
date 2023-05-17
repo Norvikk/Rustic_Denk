@@ -2,23 +2,26 @@ use crate::actions;
 use crate::processes;
 use crate::utility;
 use crate::ProcessConfig;
+use fastrand;
 
 use colored;
 use colored::Colorize;
 use std::collections::HashMap;
 
 pub fn reliability_process(loops: usize, to_display: bool) {
+    let rng = fastrand::Rng::new();
+
     for index in (5..=loops).step_by(5) {
         let lower_letter_to_assert =
-            utility::generate::custom_random_string(true, false, false, false, 25);
+            utility::generate::custom_random_string(true, false, false, false, rng.usize(1..25));
         let number_to_assert =
-            utility::generate::custom_random_string(false, true, false, false, 15);
+            utility::generate::custom_random_string(false, true, false, false, rng.usize(1..15));
         let symbol_to_assert =
-            utility::generate::custom_random_string(false, false, true, false, 25);
+            utility::generate::custom_random_string(false, false, true, false, rng.usize(1..25));
         let upper_letter_to_assert =
-            utility::generate::custom_random_string(false, false, false, true, 25);
+            utility::generate::custom_random_string(false, false, false, true, rng.usize(1..25));
         let all_characters_to_assert =
-            utility::generate::custom_random_string(true, true, true, true, 25);
+            utility::generate::custom_random_string(true, true, true, true, rng.usize(1..25));
 
         let mut config_numbers: ProcessConfig = ProcessConfig {
             user_key_length: utility::generate::custom_random_string(false, true, false, false, 4)
@@ -35,7 +38,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
         let number_result = return_clear_payload(&mut config_numbers);
         if to_display {
             println!(
-                "User Clear Payload: {}\t      | User Key Length: {}",
+                "User Clear Payload: {} | User Key Length: {}",
                 config_numbers.user_clear_payload.on_bright_white().black(),
                 config_numbers.user_key_length
             );
