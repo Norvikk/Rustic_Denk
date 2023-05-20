@@ -33,6 +33,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
             process_created_blur: String::new(),
             read_blur: String::new(),
             read_keys: String::new(),
+            process_chosen_index: 100,
         };
 
         let number_result = return_clear_payload(&mut config_numbers);
@@ -56,6 +57,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
             process_created_blur: String::new(),
             read_blur: String::new(),
             read_keys: String::new(),
+            process_chosen_index: 100,
         };
 
         let lower_letter_result = return_clear_payload(&mut config_lower_letter);
@@ -82,6 +84,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
             process_created_blur: String::new(),
             read_blur: String::new(),
             read_keys: String::new(),
+            process_chosen_index: 100,
         };
 
         let symbol_result = return_clear_payload(&mut config_symbols);
@@ -105,6 +108,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
             process_created_blur: String::new(),
             read_blur: String::new(),
             read_keys: String::new(),
+            process_chosen_index: 100,
         };
         let upper_letter_result = return_clear_payload(&mut config_upper_letters);
         if to_display {
@@ -130,6 +134,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
             process_created_blur: String::new(),
             read_blur: String::new(),
             read_keys: String::new(),
+            process_chosen_index: 100,
         };
 
         let all_characters_result = return_clear_payload(&mut config_all_characters);
@@ -145,6 +150,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
         }
         assert_eq!(all_characters_to_assert, all_characters_result);
         config_all_characters.flush();
+        actions::write::flush_dnk();
 
         if to_display {
         println!(

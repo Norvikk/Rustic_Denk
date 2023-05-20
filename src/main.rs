@@ -10,22 +10,21 @@ use denk_algo::utility;
 
 use denk_algo::ProcessConfig;
 
-fn main() {
-
-    // processes::reliability::reliability_process(10, false);
-    
-    
-    // Stores the display processes. The actual logic behind choosing them is hard-coded
-    let processes: Vec<&str> = vec!["Encrypt (save)", "Decrypt (save)\n", "Exit process\n", "Benchmark 0 ", "Reliability test (100 runs)", "Flush Brick.dnk/Keys.dnk"]; 
+fn main() -> ! {
+    let processes: Vec<&str> = vec!["Encrypt (save)", "Decrypt (save)\n", "Exit process\n", "Benchmark 0 ", "Reliability test (100 runs)", "Flush Brick.dnk/Keys.dnk files"]; 
 
     loop {
-        cli::display::developer(); // Displays info about the developer and the program
+        cli::display::developer(); 
 
-        // Creates a new instance of ProcessConfig. This is the root Config which will be used by all processes
         let mut config: ProcessConfig = ProcessConfig {
             // Need discrete initialization
-            user_key_length: 1_000, // user this up
-            user_clear_payload: String::from("ur mum"), // user this up
+            user_key_length: 2, // user this up
+            user_clear_payload: String::from("'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
+            't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '!', '@',
+            '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', '[', ']', '{', '}', '|', ';',
+            ':', ',', '.', '/', '<', '>', '?', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
+            'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'"), // user this up
+            process_chosen_index: cli::inquire::process(processes.clone()), 
     
             // Need no initialization
             system_synapse: utility::generate::random_string(10),
@@ -37,12 +36,10 @@ fn main() {
             read_keys: String::new(),
         };
     
-        // request the user process with crate inquire then forwards that index to choose a process
-        forward_process(&mut config, cli::inquire::process(processes.clone()));
+        forward_process(&mut config);
 
-        if !config.user_clear_payload.is_empty() {
-            println!("The processed result is: {}", config.user_clear_payload.bold().black());
-        }
+        if config.process_chosen_index == 1 { println!("{} -> {}", "Decryption successful!".bold().green(), config.user_clear_payload.bold().black()); }
+        if config.process_chosen_index == 0 { println!("\n{}", "Encryption successful!".bold().green());}
         
         
         press_any_key_to_continue();
@@ -53,29 +50,22 @@ fn main() {
     
 }
 
-fn forward_process(config: &mut ProcessConfig, index: usize) -> usize {
+fn forward_process(config: &mut ProcessConfig) -> usize {
     let start_time = Instant::now();
-    match index {
+
+    match config.process_chosen_index {
         0 => {
             processes::encrypt::encrypt(config);
-            actions::write::files(&config, ".dnk");
-            
-        }
+            actions::write::files(&config, ".dnk");}
         1 => {
             processes::decrypt::decrypt(config);
             
         }
         2 => std::process::exit(-1),
-        3 => {
-            println!(
-                "The encryption average is {} ms at 100 loops accuracy",
-                benchmark_process(config, 0, 100)
-            );
-            println!(
-                "The decryption average is {} ms at 100 loops accuracy",
-                benchmark_process(config, 1, 100)
-            );
-        }
+        3 => {  config.process_chosen_index = 0; println!("The encryption average is {} ms at 100 loops accuracy", benchmark_process(config, 100)); 
+                config.process_chosen_index = 1; println!("The decryption average is {} ms at 100 loops accuracy", benchmark_process(config, 100));
+                config.process_chosen_index = 100; }
+
         4 => processes::reliability::reliability_process(100, true),
         5 => {actions::write::flush_dnk();}
         _ => {}
@@ -84,11 +74,11 @@ fn forward_process(config: &mut ProcessConfig, index: usize) -> usize {
     return start_time.elapsed().as_millis() as usize;
 }
 
-fn benchmark_process(config: &mut ProcessConfig, process_index: usize, loops: usize) -> usize {
+fn benchmark_process(config: &mut ProcessConfig, loops: usize) -> usize {
     let mut timings: usize = 0;
     let old_config = config.clone();
     for _ in 0..loops {
-        timings += forward_process(config, process_index);
+        timings += forward_process(config);
         config.reset_to(&old_config)
     }
     timings / loops

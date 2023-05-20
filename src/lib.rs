@@ -19,6 +19,7 @@ pub struct ProcessConfig {
     // Process
     pub process_soft_bundle: HashMap<String, String>,
     pub process_created_blur: String,
+    pub process_chosen_index: usize,
 
     // Read
     pub read_keys: String,
@@ -35,6 +36,7 @@ impl ProcessConfig {
 
         self.process_soft_bundle.clear();
         self.process_created_blur.clear();
+        self.process_chosen_index = 0;
 
         self.read_blur.clear();
         self.read_keys.clear();
@@ -64,6 +66,7 @@ impl ProcessConfig {
         // Process
         self.process_soft_bundle = default.process_soft_bundle.clone();
         self.process_created_blur = default.process_created_blur.clone();
+        self.process_chosen_index = default.process_chosen_index;
 
         // Read
         self.read_keys = default.read_keys.clone();
@@ -100,6 +103,7 @@ mod functionality_tests {
             process_soft_bundle: HashMap::new(),
             read_blur: String::new(),
             read_keys: String::new(),
+            process_chosen_index: 0,
            
         };
 
