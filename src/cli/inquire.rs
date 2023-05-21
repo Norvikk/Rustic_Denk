@@ -1,6 +1,6 @@
 use inquire::{InquireError, Select};
 
-pub fn process(processes: Vec<&str>) -> usize{
+pub fn process(processes: &Vec<&str>) -> usize{
     // creates the CLI using crate inquire
     let selection: Result<&str, InquireError> =
         Select::new("Select process", processes.clone()).prompt();

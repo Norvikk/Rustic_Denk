@@ -18,9 +18,9 @@ fn main() -> ! {
 
         let mut config: ProcessConfig = ProcessConfig {
             // Need discrete initialization
-            user_key_length: 1000,     // user this up
-            user_clear_payload: String::from("Ok I am done. Pushing to git..."), // user this up
-            process_chosen_index: cli::inquire::process(processes.clone()), 
+            user_key_length: 1_000_00,     // user this up
+            user_clear_payload: String::from("Hello worgfld!"), // user this up
+            process_chosen_index: cli::inquire::process(&processes), 
     
             // Need no initialization
             system_synapse: utility::generate::random_string(10),

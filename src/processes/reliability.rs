@@ -2,26 +2,28 @@ use crate::actions;
 use crate::processes;
 use crate::utility;
 use crate::ProcessConfig;
-use fastrand;
+
 
 use colored;
 use colored::Colorize;
+use rand::Rng;
+use rand::rngs::OsRng;
 use std::collections::HashMap;
 
 pub fn reliability_process(loops: usize, to_display: bool) {
-    let rng = fastrand::Rng::new();
+    let mut local_rng = OsRng::default();
 
     for index in (5..=loops).step_by(5) {
         let lower_letter_to_assert =
-            utility::generate::custom_random_string(true, false, false, false, rng.usize(1..25));
+            utility::generate::custom_random_string(true, false, false, false, local_rng.gen_range(1..25));
         let number_to_assert =
-            utility::generate::custom_random_string(false, true, false, false, rng.usize(1..15));
+            utility::generate::custom_random_string(false, true, false, false, local_rng.gen_range(1..25));
         let symbol_to_assert =
-            utility::generate::custom_random_string(false, false, true, false, rng.usize(1..25));
+            utility::generate::custom_random_string(false, false, true, false, local_rng.gen_range(1..25));
         let upper_letter_to_assert =
-            utility::generate::custom_random_string(false, false, false, true, rng.usize(1..25));
+            utility::generate::custom_random_string(false, false, false, true, local_rng.gen_range(1..25));
         let all_characters_to_assert =
-            utility::generate::custom_random_string(true, true, true, true, rng.usize(1..25));
+            utility::generate::custom_random_string(true, true, true, true, local_rng.gen_range(1..25));
 
         let mut config_numbers: ProcessConfig = ProcessConfig {
             user_key_length: utility::generate::custom_random_string(false, true, false, false, 4)

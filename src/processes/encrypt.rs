@@ -32,8 +32,14 @@ pub fn soft_encrypt(config: &mut ProcessConfig) {
             };
 
             regenerations = 0; // Reset the regeneration counter
+            config.process_created_blur.push_str(&generated_iteration);
             config.process_soft_bundle.insert(letter.to_string(), generated_iteration);
+            
         }
-        config.process_created_blur.push_str(config.process_soft_bundle.get(&letter.to_string()).unwrap());
+        else {
+             config.process_created_blur.push_str(config.process_soft_bundle.get(&letter.to_string()).unwrap());
+        }
+        
+        
     }
 }
