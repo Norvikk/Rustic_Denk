@@ -5,7 +5,7 @@ use super::justify_keys::determine_keys;
 
 pub fn decrypt(config: &mut ProcessConfig) {
     determine_keys(config);
-    // config.flush_keys();
+    config.flush_keys();
     soft_decrypt(config);
 }
 

@@ -3,6 +3,7 @@ use std::time::Instant;
 use crossterm::event::{poll, read, Event};
 use colored::Colorize;
 
+
 use denk_algo::actions;
 use denk_algo::cli;
 use denk_algo::processes;
@@ -11,26 +12,38 @@ use denk_algo::utility;
 use denk_algo::ProcessConfig;
 
 fn main() -> ! {
-    let processes: Vec<&str> = vec!["Encrypt (save)", "Decrypt (save)\n", "Exit process\n", "Benchmark 0 ", "Reliability test (100 runs)", "Flush Brick.dnk/Keys.dnk files"]; 
+    let processes: Vec<String> = vec![
+        "Encrypt (save)".bold().to_string(),
+        "Decrypt (save)\n".bold().to_string(),
+        "Exit process\n".red().bold().to_string(),
+        "Reliability test\n".blue().to_string(),
+        "Flush Brick.dnk/Keys.dnk files".black().italic().to_string(),
+        "Re-enter values".black().italic().to_string(),
+    ];
+
+    let mut config: ProcessConfig = ProcessConfig {
+
+        user_clear_payload: cli::inquire::get_text_data(),
+        user_key_length: cli::inquire::get_key_data(),
+        process_chosen_index: 100, 
+        
+        system_synapse: utility::generate::random_string(10),
+
+        process_soft_bundle: HashMap::new(),
+        process_created_blur: String::new(),
+
+        read_blur: String::new(),
+        read_keys: String::new(),
+    };
+
+    let copy_config: ProcessConfig = config.clone();
 
     loop {
         cli::display::developer(); 
 
-        let mut config: ProcessConfig = ProcessConfig {
-            // Need discrete initialization
-            user_key_length: 1_000_00,     // user this up
-            user_clear_payload: String::from("Hello worgfld!"), // user this up
-            process_chosen_index: cli::inquire::process(&processes), 
-    
-            // Need no initialization
-            system_synapse: utility::generate::random_string(10),
-    
-            process_soft_bundle: HashMap::new(),
-            process_created_blur: String::new(),
-    
-            read_blur: String::new(),
-            read_keys: String::new(),
-        };
+
+        config.reset_to(&copy_config);
+        config.process_chosen_index = cli::inquire::process(&processes);
     
         forward_process(&mut config);
 
@@ -56,27 +69,16 @@ fn forward_process(config: &mut ProcessConfig) -> usize {
             
         }
         2 => std::process::exit(-1),
-        3 => {  config.process_chosen_index = 0; println!("The encryption average is {} ms at 100 loops accuracy", benchmark_process(config, 100)); 
-                config.process_chosen_index = 1; println!("The decryption average is {} ms at 100 loops accuracy", benchmark_process(config, 100));
-                config.process_chosen_index = 100; }
+        3 => { processes::reliability::reliability_process(100, true) }
 
-        4 => processes::reliability::reliability_process(100, true),
-        5 => {actions::write::flush_dnk();}
+        4 => actions::write::flush_dnk(),
+        5 => {clearscreen::clear().unwrap(); main()},
         _ => {}
     }
     
     return start_time.elapsed().as_millis() as usize;
 }
 
-fn benchmark_process(config: &mut ProcessConfig, loops: usize) -> usize {
-    let mut timings: usize = 0;
-    let old_config = config.clone();
-    for _ in 0..loops {
-        timings += forward_process(config);
-        config.reset_to(&old_config)
-    }
-    timings / loops
-}
 
 fn press_any_key_to_continue() {
     println!("{}", "\n────────────────────────────────".red().bold());
