@@ -1,9 +1,41 @@
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 pub mod actions;
 pub mod cli;
 pub mod processes;
 pub mod utility;
+
+
+#[cfg(test)]
+mod functionality_tests {
+    use std::collections::HashMap;
+
+    use crate::ProcessConfig;
+
+    #[test]
+    fn struct_process_config() {
+        let mut process_config_file = ProcessConfig {
+            system_synapse: String::from("synapse_structure"),
+            user_key_length: 190,
+            process_created_blur: String::new(),
+            user_clear_payload: String::from("asdfg"),
+            process_soft_bundle: HashMap::new(),
+            read_blur: String::new(),
+            read_keys: String::new(),
+            process_chosen_index: 0,
+           
+        };
+
+        assert_eq!(process_config_file.user_key_length, 180);
+        assert_eq!(process_config_file.system_synapse, "synapse_structure");
+
+        process_config_file.cli_display();
+        process_config_file.flush();
+
+        assert_eq!(process_config_file.user_key_length, 0);
+        assert_eq!(process_config_file.system_synapse, "");
+    }
+}
 
 
 
@@ -75,7 +107,7 @@ impl ProcessConfig {
 
     }
 
-    pub fn cli_display(&self) {
+    pub fn cli_display(&self) { //not finished
         let empty_placeholder = "-NULL-";
         if self.system_synapse.is_empty() {
             println!("[SYNAPSE] {}", empty_placeholder);
@@ -85,35 +117,4 @@ impl ProcessConfig {
         println!("[ITERATION] {}", self.user_key_length);
     }
 
-}
-
-#[cfg(test)]
-mod functionality_tests {
-    use std::collections::HashMap;
-
-    use crate::ProcessConfig;
-
-    #[test]
-    fn struct_process_config() {
-        let mut process_config_file = ProcessConfig {
-            system_synapse: String::from("synapse_structure"),
-            user_key_length: 190,
-            process_created_blur: String::new(),
-            user_clear_payload: String::from("asdfg"),
-            process_soft_bundle: HashMap::new(),
-            read_blur: String::new(),
-            read_keys: String::new(),
-            process_chosen_index: 0,
-           
-        };
-
-        assert_eq!(process_config_file.user_key_length, 180);
-        assert_eq!(process_config_file.system_synapse, "synapse_structure");
-
-        process_config_file.cli_display();
-        process_config_file.flush();
-
-        assert_eq!(process_config_file.user_key_length, 0);
-        assert_eq!(process_config_file.system_synapse, "");
-    }
 }

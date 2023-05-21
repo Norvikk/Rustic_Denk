@@ -8,7 +8,9 @@ edition = "2021"
 [dependencies]
 inquire = "0.6.2"
 colored = "2.0.0"
-rand = "0.8.5"
 fastrand = "1.9.0"
+
 clearscreen = "2.0.1"
 crossterm = "0.19"
+
+rayon = "1.7"

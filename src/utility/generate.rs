@@ -1,10 +1,6 @@
-use fastrand;
+use rayon::prelude::*;
 
 pub fn random_string(size: usize) -> String {
-   let rng = fastrand::Rng::new();
-    let mut result = String::new();
-    result.reserve(size);
-
     let options_chars: [char; 89] = [
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
         't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '!', '@',
@@ -13,20 +9,19 @@ pub fn random_string(size: usize) -> String {
         'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
     ];
 
-    for _ in 0..size {
-        result.push(options_chars[rng.usize(0..options_chars.len())]);
-    }
-
-    result
+     (0..size)
+        .into_par_iter()
+        .map(|_| {
+            let rng = fastrand::Rng::new();
+            options_chars[rng.usize(0..options_chars.len())]
+        })
+        .collect()
 }
 
 
 
-pub fn custom_random_string(
-    lower_letters: bool,
-    numbers: bool,
-    symbols: bool,
-    upper_letters: bool,
+
+pub fn custom_random_string( lower_letters: bool, numbers: bool, symbols: bool,upper_letters: bool,
     size: usize,
 ) -> String {
     let rng = fastrand::Rng::new();

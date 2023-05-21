@@ -17,6 +17,6 @@ pub fn soft_decrypt(config: &mut ProcessConfig) {
     for chunk in split_chunks {
         result.push_str(config.process_soft_bundle.get(&chunk).unwrap());
     }
-    
+ 
     config.user_clear_payload = result;
 }

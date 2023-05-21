@@ -18,12 +18,8 @@ fn main() -> ! {
 
         let mut config: ProcessConfig = ProcessConfig {
             // Need discrete initialization
-            user_key_length: 2, // user this up
-            user_clear_payload: String::from("'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-            't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '!', '@',
-            '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', '[', ']', '{', '}', '|', ';',
-            ':', ',', '.', '/', '<', '>', '?', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
-            'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'"), // user this up
+            user_key_length: 1000,     // user this up
+            user_clear_payload: String::from("Ok I am done. Pushing to git..."), // user this up
             process_chosen_index: cli::inquire::process(processes.clone()), 
     
             // Need no initialization
@@ -38,15 +34,13 @@ fn main() -> ! {
     
         forward_process(&mut config);
 
-        if config.process_chosen_index == 1 { println!("{} -> {}", "Decryption successful!".bold().green(), config.user_clear_payload.bold().black()); }
         if config.process_chosen_index == 0 { println!("\n{}", "Encryption successful!".bold().green());}
+        else if config.process_chosen_index == 1 { println!("{} -> {}", "Decryption successful!".bold().green(), config.user_clear_payload.bold().black()); }
         
         
         press_any_key_to_continue();
         clearscreen::clear().unwrap();
     }
-    
-    
     
 }
 
