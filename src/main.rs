@@ -17,8 +17,8 @@ fn main() -> ! {
         "Decrypt (save)\n".bold().to_string(),
         "Exit process\n".red().bold().to_string(),
         "Reliability test\n".blue().to_string(),
-        "Flush Brick.dnk/Keys.dnk files".black().italic().to_string(),
-        "Re-enter values".black().italic().to_string(),
+        "Flush Brick.dnk/Keys.dnk files".italic().to_string(),
+        "Re-enter values".italic().to_string(),
     ];
 
     let mut config: ProcessConfig = ProcessConfig {

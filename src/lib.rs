@@ -4,6 +4,7 @@ pub mod actions;
 pub mod cli;
 pub mod processes;
 pub mod utility;
+pub mod APi;
 
 
 #[cfg(test)]
