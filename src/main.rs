@@ -6,28 +6,37 @@ use colored::Colorize;
 
 use denk_algo::actions;
 use denk_algo::cli;
+use denk_algo::direct_retrieval::direct_decrypt;
+use denk_algo::direct_retrieval::direct_encrypt;
 use denk_algo::processes;
 use denk_algo::utility;
 
 use denk_algo::ProcessConfig;
 
 fn main() -> ! {
+
+    let tuple = direct_encrypt("Hello API World".to_string(), 12);
+   
+    let decrypt = direct_decrypt(tuple.0, tuple.1);
+
+    println!("{}", decrypt);
+    
+
     let processes: Vec<String> = vec![
         "Encrypt (save)".bold().to_string(),
         "Decrypt (save)\n".bold().to_string(),
         "Exit process\n".red().bold().to_string(),
         "Reliability test\n".blue().to_string(),
         "Flush Brick.dnk/Keys.dnk files".italic().to_string(),
-        "Re-enter values".italic().to_string(),
     ];
 
     let mut config: ProcessConfig = ProcessConfig {
 
-        user_clear_payload: cli::inquire::get_text_data(),
-        user_key_length: cli::inquire::get_key_data(),
+        user_clear_payload: String::new(),
+        user_key_length: 1, // cannot be 0 now else it breaks decrypt.rs
         process_chosen_index: 100, 
         
-        system_synapse: utility::generate::random_string(10),
+        system_synapse: utility::generate::random_string(4),
 
         process_soft_bundle: HashMap::new(),
         process_created_blur: String::new(),
@@ -62,6 +71,8 @@ fn forward_process(config: &mut ProcessConfig) -> usize {
 
     match config.process_chosen_index {
         0 => {
+            config.user_clear_payload = cli::inquire::get_text_data();
+            config.user_key_length = cli::inquire::get_key_data();
             processes::encrypt::encrypt(config);
             actions::write::files(&config, ".dnk");}
         1 => {
@@ -72,7 +83,6 @@ fn forward_process(config: &mut ProcessConfig) -> usize {
         3 => { processes::reliability::reliability_process(100, true) }
 
         4 => actions::write::flush_dnk(),
-        5 => {clearscreen::clear().unwrap(); main()},
         _ => {}
     }
     

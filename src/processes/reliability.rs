@@ -30,7 +30,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
                 .parse::<usize>()
                 .unwrap(),
             user_clear_payload: number_to_assert.clone(),
-            system_synapse: utility::generate::random_string(10),
+            system_synapse: utility::generate::random_string(4),
             process_soft_bundle: HashMap::new(),
             process_created_blur: String::new(),
             read_blur: String::new(),
@@ -54,7 +54,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
                 .parse::<usize>()
                 .unwrap(),
             user_clear_payload: lower_letter_to_assert.clone(),
-            system_synapse: utility::generate::random_string(10),
+            system_synapse: utility::generate::random_string(4),
             process_soft_bundle: HashMap::new(),
             process_created_blur: String::new(),
             read_blur: String::new(),
@@ -81,7 +81,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
                 .parse::<usize>()
                 .unwrap(),
             user_clear_payload: symbol_to_assert.clone(),
-            system_synapse: utility::generate::random_string(10),
+            system_synapse: utility::generate::random_string(4),
             process_soft_bundle: HashMap::new(),
             process_created_blur: String::new(),
             read_blur: String::new(),
@@ -105,7 +105,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
                 .parse::<usize>()
                 .unwrap(),
             user_clear_payload: upper_letter_to_assert.clone(),
-            system_synapse: utility::generate::random_string(10),
+            system_synapse: utility::generate::random_string(4),
             process_soft_bundle: HashMap::new(),
             process_created_blur: String::new(),
             read_blur: String::new(),
@@ -131,7 +131,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
                 .parse::<usize>()
                 .unwrap(),
             user_clear_payload: all_characters_to_assert.clone(),
-            system_synapse: utility::generate::random_string(10),
+            system_synapse: utility::generate::random_string(4),
             process_soft_bundle: HashMap::new(),
             process_created_blur: String::new(),
             read_blur: String::new(),

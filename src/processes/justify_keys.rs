@@ -2,13 +2,18 @@ use crate::actions::read;
 use crate::ProcessConfig;
 
 pub fn determine_keys(config: &mut ProcessConfig) {
-    read::files(config);
+    if config.user_key_length != 0 { read::files(config);}
+   
     assign_synapse(config);
+   
     justify_soft(config);
 }
 
 fn justify_soft(config: &mut ProcessConfig) {
     let split_entries: Vec<&str> = config.read_keys.split(&config.system_synapse).collect();
+    config.user_key_length = split_entries[1].len();
+
+    
 
     for i in (0..split_entries.len() - 1).step_by(2) {
         config.process_soft_bundle.insert(
@@ -19,7 +24,7 @@ fn justify_soft(config: &mut ProcessConfig) {
 }
 
 fn assign_synapse(config: &mut ProcessConfig) {
-    let count_of_steps = 10;
+    let count_of_steps = 4;
 
     config.system_synapse = config.read_keys[1..count_of_steps + 1].to_string();
 }
