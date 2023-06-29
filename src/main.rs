@@ -9,22 +9,26 @@ use denk_algo::cli;
 use denk_algo::direct_retrieval::direct_decrypt;
 use denk_algo::direct_retrieval::direct_encrypt;
 use denk_algo::processes;
+use denk_algo::processes::filecrypt::encrypt_with_seed;
+use denk_algo::processes::filecrypt::justify_keys;
 use denk_algo::utility;
 
-use denk_algo::ProcessConfig;
+use denk_algo::ProcessConfig; 
 
 fn main() -> ! {
 
-    let tuple = direct_encrypt("Hello API World".to_string(), 12);
-   
-    let decrypt = direct_decrypt(tuple.0, tuple.1);
+    encrypt_with_seed(245);
+        // Usage of API
 
-    println!("{}", decrypt);
+    // let tuple = direct_encrypt("Hello API World".to_string(), 12);
+    // let decrypt = direct_decrypt(tuple.0, tuple.1);
+    // println!("{}", decrypt);
     
 
     let processes: Vec<String> = vec![
-        "Encrypt (save)".bold().to_string(),
-        "Decrypt (save)\n".bold().to_string(),
+        "Encrypt Text (save)".bold().to_string(),
+        "Decrypt Text (save)".bold().to_string(),
+        "Encrypt files (stores)\n".bold().to_string(),
         "Exit process\n".red().bold().to_string(),
         "Reliability test\n".blue().to_string(),
         "Flush Brick.dnk/Keys.dnk files".italic().to_string(),
@@ -73,16 +77,24 @@ fn forward_process(config: &mut ProcessConfig) -> usize {
         0 => {
             config.user_clear_payload = cli::inquire::get_text_data();
             config.user_key_length = cli::inquire::get_key_data();
-            processes::encrypt::encrypt(config);
-            actions::write::files(&config, ".dnk");}
-        1 => {
-            processes::decrypt::decrypt(config);
-            
+            processes::softcrypt::encrypt(config);
+            actions::write::files(&config, ".dnk");
         }
-        2 => std::process::exit(-1),
-        3 => { processes::reliability::reliability_process(100, true) }
-
-        4 => actions::write::flush_dnk(),
+        1 => {
+            processes::softcrypt::decrypt(config);
+        }
+        2 => {
+            // Return empty here
+        }
+        3 => {
+            std::process::exit(-1); 
+        }
+        4 => {
+            processes::reliability::reliability_process(100, true);
+        }
+        5 => {
+            actions::write::flush_dnk();
+        }
         _ => {}
     }
     

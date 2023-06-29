@@ -163,10 +163,10 @@ pub fn reliability_process(loops: usize, to_display: bool) {
     }
     }
     fn return_clear_payload(config: &mut ProcessConfig) -> String {
-        processes::encrypt::encrypt(config);
+        processes::softcrypt::encrypt(config);
         actions::write::files(config, ".dnk");
         config.flush_user_clear_payload();
-        processes::decrypt::decrypt(config);
+        processes::softcrypt::decrypt(config);
         config.user_clear_payload.clone()
     }
 }

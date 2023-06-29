@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{utility, ProcessConfig, processes::{self, decrypt::decrypt}};
+use crate::{utility, ProcessConfig, processes::{self, softcrypt::decrypt}};
 
 pub fn direct_encrypt(input_string: String, key_size: usize) -> (String, String) {
     if input_string.is_empty() || key_size == 0 { panic!("Content is empty. Breaking process")}
@@ -21,7 +21,7 @@ pub fn direct_encrypt(input_string: String, key_size: usize) -> (String, String)
 
     
 
-    processes::encrypt::encrypt(&mut config);
+    processes::softcrypt::encrypt(&mut config);
 
     for (key, value) in config.process_soft_bundle.iter() {
         let line = format!("{}{}{}{}", key, config.system_synapse, value, config.system_synapse); 
