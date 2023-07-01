@@ -3,21 +3,23 @@ use std::time::Instant;
 use crossterm::event::{poll, read, Event};
 use colored::Colorize;
 
-
+use std::fs;
 use denk_algo::actions;
 use denk_algo::cli;
 use denk_algo::direct_retrieval::direct_decrypt;
 use denk_algo::direct_retrieval::direct_encrypt;
 use denk_algo::processes;
+use denk_algo::processes::filecrypt::decrypt_with_seed;
 use denk_algo::processes::filecrypt::encrypt_with_seed;
-use denk_algo::processes::filecrypt::justify_keys;
+use denk_algo::processes::filecrypt::string_to_u64;
 use denk_algo::utility;
 
 use denk_algo::ProcessConfig; 
 
 fn main() -> ! {
+    create_folder_structure();
 
-    encrypt_with_seed(245);
+
         // Usage of API
 
     // let tuple = direct_encrypt("Hello API World".to_string(), 12);
@@ -28,7 +30,8 @@ fn main() -> ! {
     let processes: Vec<String> = vec![
         "Encrypt Text (save)".bold().to_string(),
         "Decrypt Text (save)".bold().to_string(),
-        "Encrypt files (stores)\n".bold().to_string(),
+        "Encrypt files (stores)".bold().to_string(),
+        "Decrypt files (stores)\n".bold().to_string(),
         "Exit process\n".red().bold().to_string(),
         "Reliability test\n".blue().to_string(),
         "Flush Brick.dnk/Keys.dnk files".italic().to_string(),
@@ -84,15 +87,20 @@ fn forward_process(config: &mut ProcessConfig) -> usize {
             processes::softcrypt::decrypt(config);
         }
         2 => {
-            // Return empty here
+            encrypt_with_seed(string_to_u64(&cli::inquire::get_seed_data()));
+            println!("Done encrypting");
         }
         3 => {
-            std::process::exit(-1); 
+            decrypt_with_seed(string_to_u64(&cli::inquire::get_seed_data()));
+            println!("Done decrypting (if the password was mistyped or wrong, the files will be unreadable)");
         }
         4 => {
-            processes::reliability::reliability_process(100, true);
+            std::process::exit(-1); 
         }
         5 => {
+            processes::reliability::reliability_process(100, true);
+        }
+        6 => {
             actions::write::flush_dnk();
         }
         _ => {}
@@ -111,6 +119,27 @@ fn press_any_key_to_continue() {
         if poll(std::time::Duration::from_secs(0)).unwrap() {
             if let Event::Key(_) = read().unwrap() {
                 break;
+            }
+        }
+    }
+}
+
+fn create_folder_structure() {
+    let root_folder = "filecrypt";
+    let subfolder_names = ["1_input_encrypt", "2_output_encrypt", "3_decrypted"];
+
+    if let Err(e) = fs::create_dir(root_folder) {
+        if e.kind() != std::io::ErrorKind::AlreadyExists {
+            eprintln!("Failed to create root folder '{}': {}", root_folder, e);
+            return;
+        }
+    }
+
+    for subfolder_name in &subfolder_names {
+        let folder_path = format!("{}/{}", root_folder, subfolder_name);
+        if let Err(e) = fs::create_dir(&folder_path) {
+            if e.kind() != std::io::ErrorKind::AlreadyExists {
+                eprintln!("Failed to create subfolder '{}': {}", folder_path, e);
             }
         }
     }

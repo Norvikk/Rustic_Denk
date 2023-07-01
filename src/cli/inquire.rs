@@ -55,3 +55,22 @@ pub fn get_text_data() -> String {
 
     status.unwrap().to_string()
 }
+
+pub fn get_seed_data() -> String {
+    
+    let validate_text = |input: &str| {
+        if input.to_string().is_empty() {
+            Ok(Validation::Invalid("This cannot be empty!".into()))
+        } else {
+            Ok(Validation::Valid)
+        }
+    };
+
+    let status = Text::new("Password:")
+    .with_validator(validate_text)
+    .with_help_message("This password will be used for decrypting the files")
+    .prompt();
+
+
+    status.unwrap().to_string()
+}

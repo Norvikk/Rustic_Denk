@@ -2,62 +2,135 @@ use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::Read;
-use std::ops::Index;
 use rand::Rng;
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
-use std::path::Path;
+use colored::Colorize;
 
 
-pub fn string_to_u32(input: &str) -> u32 {
-    let mut hash: u32 = 0;
+pub fn string_to_u64(input: &str) -> u64 {
+    let mut hash: u64 = 0;
 
     for c in input.chars() {
-        hash = (hash.wrapping_mul(31)).wrapping_add(c as u32);
+        hash = (hash.wrapping_mul(31)).wrapping_add(c as u64);
     }
 
     hash
 }
 
 pub fn encrypt_with_seed(seed: u64) {
-    let keys = justify_keys(seed);
-    let paths = fs::read_dir("./input_encrypt").unwrap();
+    let keys = justify_encryption_keys(seed);
+    let paths = fs::read_dir("./filecrypt/1_input_encrypt").unwrap();
 
     for path in paths {
-        let mut processed_bytes: Vec<u8> = vec![];
-        let index_path = path.unwrap().path();
-        let mut unsafe_reader = File::open(&index_path).expect("Library failed to list");
-        let mut unsafe_bytes = Vec::new();
-        unsafe_reader.read_to_end(&mut unsafe_bytes).expect("Failed to read unsafe");
+        println!("Encrypting {}", path.as_ref().unwrap().path().display().to_string().bold().green());
+        let mut processed_bytes: Vec<u8> = Vec::with_capacity(path.as_ref().unwrap().metadata().unwrap().len() as usize);
+        let mut unsafe_reader = File::open(path.as_ref().unwrap().path()).expect("File failed to list");
+        let mut unsafe_bytes = Vec::with_capacity(path.as_ref().unwrap().metadata().unwrap().len() as usize);
+        unsafe_reader.read_to_end(&mut unsafe_bytes).expect("Failed to read unsafe file");
 
-        for byte in &unsafe_bytes {
-            processed_bytes.push(keys[*byte as usize]);
+        for &unsafe_byte in &unsafe_bytes {
+            if let Some(&value) = keys.get(&unsafe_byte) {
+                processed_bytes.push(value);
+            }
         }
 
-        // for index in 0..100 {
-        //     println!("{} ><>< {}", &unsafe_bytes[index], &processed_bytes[index])
-        // }
-
-        fs::write( "./output_encrypt/test.dnk", processed_bytes).unwrap();
-        format!("./output_encrypt/{}.dnk", Path::new(&index_path)
-        .file_stem().and_then(|stem| stem.to_str()).unwrap()),format!("{:?}"
+        let encrypt_path = format!("./filecrypt/2_output_encrypt/{}.dnk", path.unwrap().file_name().to_string_lossy());
+        
+        fs::write(&encrypt_path, &processed_bytes).unwrap();
     }
+    clearscreen::clear().unwrap();
 }
 
 
-pub fn justify_keys(seed: u64) -> [u8; 256] {
-    let mut rng = ChaCha20Rng::seed_from_u64(seed);
-    let mut keys: [u8; 256] = [0; 256];
+pub fn decrypt_with_seed(seed: u64) {
+    let keys = justify_decryption_keys(seed);
+    let paths = fs::read_dir("./filecrypt/2_output_encrypt").unwrap();
 
-    for index in 0..256{ keys[index] = rng.gen_range(std::u8::MIN..std::u8::MAX); }
+    for path in paths {
+        println!("Decrypting {}", path.as_ref().unwrap().path().display().to_string().bold().red());
+        let mut decrypted_bytes: Vec<u8> = Vec::with_capacity(path.as_ref().unwrap().metadata().unwrap().len() as usize);
+        let mut crypt_reader = File::open(path.as_ref().unwrap().path()).expect("Decrypt library failed to list");
+        let mut crypt_bytes: Vec<u8> = Vec::with_capacity(path.as_ref().unwrap().metadata().unwrap().len() as usize);
+        crypt_reader.read_to_end(&mut crypt_bytes).expect("Failed to read crypt");
+
+        for crypt_byte in &crypt_bytes {
+            if let Some(&value) = keys.get(&crypt_byte) {
+                decrypted_bytes.push(value);
+            } 
+
+        }
+
+        let decrypt_path = format!("./filecrypt/3_decrypted/{}", remove_extension(path.unwrap().file_name().to_string_lossy().to_string()));
+
+
+        fs::write(&decrypt_path, &decrypted_bytes).unwrap();
+    }
+    clearscreen::clear().unwrap();
+}
+
+fn remove_extension(path: String) -> String {
+    let extension = ".dnk";
+    if path.ends_with(extension) {
+        path[..path.len() - extension.len()].to_string()
+    } else {
+        path.to_string()
+    }
+}
+
+pub fn justify_encryption_keys(seed: u64) -> HashMap<u8, u8> {
+    let mut rng = ChaCha20Rng::seed_from_u64(seed);
+    let mut keys: HashMap<u8,u8> = HashMap::new();
+    let mut used: Vec<u8> = vec![];
+
+    for index in 0..=255{ 
+        let mut random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
+        if !used.contains(&random) {
+             keys.insert(index, random);
+             used.push(random);     
+        } 
+
+        else {
+            loop {
+                random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
+                if !used.contains(&random) {
+                    keys.insert(index, random);
+                    used.push(random);
+                    break;
+                }
+            }        
+        }
+    }
 
     keys
 }
 
+pub fn justify_decryption_keys(seed: u64) -> HashMap<u8, u8> {
+    let mut rng = ChaCha20Rng::seed_from_u64(seed);
+    let mut keys: HashMap<u8,u8> = HashMap::new();
+    let mut used: Vec<u8> = vec![];
 
+    for index in 0..=255{ 
+        let mut random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
+        if !used.contains(&random) {
+             keys.insert( random, index);
+             used.push(random);     
+        } 
 
+        else {
+            loop {
+                random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
+                if !used.contains(&random) {
+                    keys.insert( random, index);
+                    used.push(random);
+                    break;
+                }
+            }        
+        }
+    }
 
-
+    keys
+}
 
 
 
