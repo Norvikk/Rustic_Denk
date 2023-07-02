@@ -158,7 +158,7 @@ pub fn reliability_process(loops: usize, to_display: bool) {
         println!(
             "\n{}{}",
             index.to_string().green().bold(),
-            " iterations finished".green().bold()
+            " program reliability iterations finished".green().bold()
         );
     }
     }

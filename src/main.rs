@@ -18,6 +18,8 @@ use denk_algo::ProcessConfig;
 
 fn main() -> ! {
     create_folder_structure();
+    processes::reliability::reliability_process(25, false);
+    
 
 
         // Usage of API
@@ -28,13 +30,13 @@ fn main() -> ! {
     
 
     let processes: Vec<String> = vec![
-        "Encrypt Text (save)".bold().to_string(),
-        "Decrypt Text (save)".bold().to_string(),
-        "Encrypt files (stores)".bold().to_string(),
-        "Decrypt files (stores)\n".bold().to_string(),
+        "Encrypt Text (stored)".bold().to_string(),
+        "Decrypt Text (stored)".bold().to_string(),
+        "Flush Brick.dnk/Keys.dnk files\n".italic().to_string(),
+        "Encrypt files (stored)".bold().to_string(),
+        "Decrypt files (stored)".bold().to_string(),
+        "Flush Filecrypt Decrypt Folder\n".italic().to_string(),
         "Exit process\n".red().bold().to_string(),
-        "Reliability test\n".blue().to_string(),
-        "Flush Brick.dnk/Keys.dnk files".italic().to_string(),
     ];
 
     let mut config: ProcessConfig = ProcessConfig {
@@ -87,21 +89,24 @@ fn forward_process(config: &mut ProcessConfig) -> usize {
             processes::softcrypt::decrypt(config);
         }
         2 => {
+            actions::write::flush_dnk();
+        }
+        3 => {
             encrypt_with_seed(string_to_u64(&cli::inquire::get_seed_data()));
             println!("Done encrypting");
         }
-        3 => {
-            decrypt_with_seed(string_to_u64(&cli::inquire::get_seed_data()));
-            println!("Done decrypting (if the password was mistyped or wrong, the files will be unreadable)");
-        }
         4 => {
-            std::process::exit(-1); 
+            decrypt_with_seed(string_to_u64(&cli::inquire::get_seed_data()));
+            println!("{} {}",
+                "Done decrypting.".bold().green(),
+                " (if the password was mistyped or wrong, the files will be unreadable)".to_ascii_uppercase().bold().red()
+            );
         }
         5 => {
-            processes::reliability::reliability_process(100, true);
+            actions::write::flush_filecrypt();
         }
         6 => {
-            actions::write::flush_dnk();
+            std::process::exit(-1);
         }
         _ => {}
     }
@@ -128,12 +133,21 @@ fn create_folder_structure() {
     let root_folder = "filecrypt";
     let subfolder_names = ["1_input_encrypt", "2_output_encrypt", "3_decrypted"];
 
+    let textcrypt_folder = "textcrypt";
+
+    if let Err(e) = fs::create_dir(textcrypt_folder) {
+        if e.kind() != std::io::ErrorKind::AlreadyExists {
+            eprintln!("Failed to create textcrypt folder '{}': {}", root_folder, e);
+        }
+    }
+
     if let Err(e) = fs::create_dir(root_folder) {
         if e.kind() != std::io::ErrorKind::AlreadyExists {
             eprintln!("Failed to create root folder '{}': {}", root_folder, e);
-            return;
         }
     }
+
+    
 
     for subfolder_name in &subfolder_names {
         let folder_path = format!("{}/{}", root_folder, subfolder_name);

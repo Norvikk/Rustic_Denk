@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io::Read;
 use rand::Rng;
 use rand::SeedableRng;
+use rand::random;
 use rand_chacha::ChaCha20Rng;
 use colored::Colorize;
 
@@ -19,7 +20,7 @@ pub fn string_to_u64(input: &str) -> u64 {
 }
 
 pub fn encrypt_with_seed(seed: u64) {
-    let keys = justify_encryption_keys(seed);
+    let keys = justify_keys(seed, true);
     let paths = fs::read_dir("./filecrypt/1_input_encrypt").unwrap();
 
     for path in paths {
@@ -44,7 +45,7 @@ pub fn encrypt_with_seed(seed: u64) {
 
 
 pub fn decrypt_with_seed(seed: u64) {
-    let keys = justify_decryption_keys(seed);
+    let keys = justify_keys(seed, false);
     let paths = fs::read_dir("./filecrypt/2_output_encrypt").unwrap();
 
     for path in paths {
@@ -78,23 +79,56 @@ fn remove_extension(path: String) -> String {
     }
 }
 
-pub fn justify_encryption_keys(seed: u64) -> HashMap<u8, u8> {
+pub fn justify_keys(seed: u64, type_encryption: bool) -> HashMap<u8, u8> {
+    fn skim_seed(input: u64) -> u64 {
+        let mut processed = input % 10 + 3;
+        if processed > 12 { processed -= 10;}
+        
+        processed *= 2;
+        processed += 5;
+        processed -= 7;
+        processed /= 3;
+        processed %= 8;
+        processed += 2;
+        processed *= 4;
+        processed -= 10;
+        processed += 6;
+        processed /= 2;
+        
+        if processed > 12 || processed < 1 { processed %= 13; }
+        
+        processed
+    }
+    
+
     let mut rng = ChaCha20Rng::seed_from_u64(seed);
     let mut keys: HashMap<u8,u8> = HashMap::new();
     let mut used: Vec<u8> = vec![];
 
+    let mut depth_of_field: [usize; 256] = [0; 256];
+    let skimmed_number = skim_seed(seed) as usize;
+
+    if skimmed_number > 12 {panic!("Skimmed number exceeds maximum of 12")}
+
+    for value in depth_of_field.iter_mut() { *value = rng.gen_range(0..=skimmed_number);}
+
     for index in 0..=255{ 
         let mut random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
+
+        for _ in 0..=depth_of_field[index as usize] { random = rng.gen_range(std::u8::MIN..=std::u8::MAX);}
+        
         if !used.contains(&random) {
-             keys.insert(index, random);
-             used.push(random);     
+            if type_encryption { keys.insert(index, random); } 
+            else {  keys.insert( random, index);}
+            used.push(random);     
         } 
 
-        else {
-            loop {
-                random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
+        else { loop {             
+            random = rng.gen_range(std::u8::MIN..=std::u8::MAX);    
                 if !used.contains(&random) {
-                    keys.insert(index, random);
+                    if type_encryption { keys.insert(index, random);} 
+                    else { keys.insert( random, index);}
+
                     used.push(random);
                     break;
                 }
@@ -105,33 +139,24 @@ pub fn justify_encryption_keys(seed: u64) -> HashMap<u8, u8> {
     keys
 }
 
-pub fn justify_decryption_keys(seed: u64) -> HashMap<u8, u8> {
+fn keys_shuffler(keys: HashMap<u8,u8>, seed: u64) -> HashMap<u8,u8> {
     let mut rng = ChaCha20Rng::seed_from_u64(seed);
-    let mut keys: HashMap<u8,u8> = HashMap::new();
+    let mut shufflereer: Vec<u8> = vec![];
+    let mut new_keys: HashMap<u8,u8> = HashMap::new();
+
     let mut used: Vec<u8> = vec![];
-
-    for index in 0..=255{ 
-        let mut random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
+    for _ in 0..=255 {
+        let mut random = rng.gen_range(0..=255);
         if !used.contains(&random) {
-             keys.insert( random, index);
-             used.push(random);     
-        } 
-
-        else {
-            loop {
-                random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
-                if !used.contains(&random) {
-                    keys.insert( random, index);
-                    used.push(random);
-                    break;
-                }
-            }        
+            shufflereer.push(random);
         }
+        
     }
 
-    keys
-}
+    
 
+    new_keys
+}
 
 
 
