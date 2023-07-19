@@ -3,11 +3,11 @@ use std::time::Instant;
 use crossterm::event::{poll, read, Event};
 use colored::Colorize;
 
+
+
 use std::fs;
 use denk_algo::actions;
 use denk_algo::cli;
-use denk_algo::direct_retrieval::direct_decrypt;
-use denk_algo::direct_retrieval::direct_encrypt;
 use denk_algo::processes;
 use denk_algo::processes::filecrypt::decrypt_with_seed;
 use denk_algo::processes::filecrypt::encrypt_with_seed;
@@ -16,17 +16,30 @@ use denk_algo::utility;
 
 use denk_algo::ProcessConfig; 
 
-fn main() -> ! {
+
+pub fn main() -> ! {
     create_folder_structure();
-    processes::reliability::reliability_process(25, false);
-    
 
+    /*
+    use denk_algo::direct_retrieval::direct_decrypt;
+    use denk_algo::direct_retrieval::direct_encrypt;
+    use denk_algo::direct_retrieval::direct_filecrypt;
+    */
 
-        // Usage of API
+        // Usage of Text API
 
     // let tuple = direct_encrypt("Hello API World".to_string(), 12);
     // let decrypt = direct_decrypt(tuple.0, tuple.1);
     // println!("{}", decrypt);
+
+
+
+        // Usage of File API
+
+    // create_folders(); // Creates the folders
+    // direct_filecrypt(String::from("PaSwsord134!")); // Takes a password (String) to encrypt
+    // direct_filedecrypt(String::from("WrongPasswordOhNo")); // Takes a password (String) to decrypt
+    // The wrong password will store just unopenable files 
     
 
     let processes: Vec<String> = vec![
@@ -37,6 +50,7 @@ fn main() -> ! {
         "Decrypt files (stored)".bold().to_string(),
         "Flush Filecrypt Decrypt Folder\n".italic().to_string(),
         "Exit process\n".red().bold().to_string(),
+        "Test reliability (Br-Debrick)".green().bold().to_string(),
     ];
 
     let mut config: ProcessConfig = ProcessConfig {
@@ -107,6 +121,9 @@ fn forward_process(config: &mut ProcessConfig) -> usize {
         }
         6 => {
             std::process::exit(-1);
+        }
+        7 => {
+            processes::reliability::text_reliability_process(25, true);
         }
         _ => {}
     }

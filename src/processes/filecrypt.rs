@@ -4,18 +4,14 @@ use std::fs::File;
 use std::io::Read;
 use rand::Rng;
 use rand::SeedableRng;
-use rand::random;
 use rand_chacha::ChaCha20Rng;
 use colored::Colorize;
 
 
+
 pub fn string_to_u64(input: &str) -> u64 {
     let mut hash: u64 = 0;
-
-    for c in input.chars() {
-        hash = (hash.wrapping_mul(31)).wrapping_add(c as u64);
-    }
-
+    for c in input.chars() { hash = (hash.wrapping_mul(31)).wrapping_add(c as u64); }
     hash
 }
 
@@ -43,7 +39,6 @@ pub fn encrypt_with_seed(seed: u64) {
     clearscreen::clear().unwrap();
 }
 
-
 pub fn decrypt_with_seed(seed: u64) {
     let keys = justify_keys(seed, false);
     let paths = fs::read_dir("./filecrypt/2_output_encrypt").unwrap();
@@ -59,12 +54,9 @@ pub fn decrypt_with_seed(seed: u64) {
             if let Some(&value) = keys.get(&crypt_byte) {
                 decrypted_bytes.push(value);
             } 
-
         }
 
         let decrypt_path = format!("./filecrypt/3_decrypted/{}", remove_extension(path.unwrap().file_name().to_string_lossy().to_string()));
-
-
         fs::write(&decrypt_path, &decrypted_bytes).unwrap();
     }
     clearscreen::clear().unwrap();
@@ -80,6 +72,7 @@ fn remove_extension(path: String) -> String {
 }
 
 pub fn justify_keys(seed: u64, type_encryption: bool) -> HashMap<u8, u8> {
+
     fn skim_seed(input: u64) -> u64 {
         let mut processed = input % 10 + 3;
         if processed > 12 { processed -= 10;}
@@ -99,7 +92,7 @@ pub fn justify_keys(seed: u64, type_encryption: bool) -> HashMap<u8, u8> {
         
         processed
     }
-    
+
 
     let mut rng = ChaCha20Rng::seed_from_u64(seed);
     let mut keys: HashMap<u8,u8> = HashMap::new();
@@ -109,12 +102,12 @@ pub fn justify_keys(seed: u64, type_encryption: bool) -> HashMap<u8, u8> {
     let skimmed_number = skim_seed(seed) as usize;
 
     if skimmed_number > 12 {panic!("Skimmed number exceeds maximum of 12")}
-
     for value in depth_of_field.iter_mut() { *value = rng.gen_range(0..=skimmed_number);}
 
-    for index in 0..=255{ 
-        let mut random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
 
+    for index in 0..=255{ 
+
+        let mut random = rng.gen_range(std::u8::MIN..=std::u8::MAX);
         for _ in 0..=depth_of_field[index as usize] { random = rng.gen_range(std::u8::MIN..=std::u8::MAX);}
         
         if !used.contains(&random) {
@@ -135,27 +128,9 @@ pub fn justify_keys(seed: u64, type_encryption: bool) -> HashMap<u8, u8> {
             }        
         }
     }
-
-    keys
-}
-
-fn keys_shuffler(keys: HashMap<u8,u8>, seed: u64) -> HashMap<u8,u8> {
-    let mut rng = ChaCha20Rng::seed_from_u64(seed);
-    let mut shufflereer: Vec<u8> = vec![];
-    let mut new_keys: HashMap<u8,u8> = HashMap::new();
-
-    let mut used: Vec<u8> = vec![];
-    for _ in 0..=255 {
-        let mut random = rng.gen_range(0..=255);
-        if !used.contains(&random) {
-            shufflereer.push(random);
-        }
-        
-    }
-
     
-
-    new_keys
+    
+    keys
 }
 
 

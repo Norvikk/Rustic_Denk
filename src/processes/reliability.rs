@@ -10,7 +10,7 @@ use rand::Rng;
 use rand::rngs::OsRng;
 use std::collections::HashMap;
 
-pub fn reliability_process(loops: usize, to_display: bool) {
+pub fn text_reliability_process(loops: usize, to_display: bool) {
     let mut local_rng = OsRng::default();
 
     for index in (5..=loops).step_by(5) {
@@ -170,3 +170,5 @@ pub fn reliability_process(loops: usize, to_display: bool) {
         config.user_clear_payload.clone()
     }
 }
+
+
